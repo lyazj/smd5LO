@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# mg5_aMC - run mg5_aMC and clean up py.py
+#
+# This script wraps the original mg5_aMC, whose path is hard-
+# coded for this project.
+
+trap '>&2 echo "$0": removing py.py...; rm -f py.py' EXIT
+trap 'exit 1' SIGINT SIGQUIT SIGTERM
+"$(dirname "$0")"/MG5_aMC/bin/mg5_aMC $*

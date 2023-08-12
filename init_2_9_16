@@ -1,0 +1,40 @@
+#!/bin/bash -v
+#
+# init - Install MG5, plugins, and models.
+#
+# Before launch this script, make sure $ROOTSYS/bin/thisroot.sh
+# has been sourced. On network issues, try again with a proxy
+# like clash. A pre-installed boost library will save much time,
+# and interfering building of large packages e.g., Delphes and
+# Pythia8, also accelerates the task dramatically.
+
+set -e
+cd "$(dirname "$0")"
+pushd resource
+
+# There are several wrappers in resource directory, which help
+# with performance and compatibility. Spaces affect splitting of
+# ${PATH} variable, thus are not allowed here.
+CURDIR="$(readlink -f .)"
+if echo "${CURDIR}" | grep -q ' '; then
+    echo ERROR: expect no space in path: \""${CURDIR}"\"
+    exit 1
+fi
+export PATH=${CURDIR}:${PATH}
+
+# Install MG5_aMC@NLO.
+wget -O MG5_aMC_v2.9.16.tar.gz \
+    https://launchpad.net/mg5amcnlo/3.0/3.5.x/+download/MG5aMC_LTS_v2.9.16.tar.gz
+rm -rf MG5_aMC_v2_9_16
+tar zvxf MG5_aMC_v2.9.16.tar.gz
+ln -sf MG5_aMC_v2_9_16 MG5_aMC
+
+# Install required MG5 plugins.
+mg5_aMC <<< "install ExRootAnalysis"
+mg5_aMC <<< "install Delphes"
+INJECT_CXXFLAGS='-std=c++11 -fPIC' mg5_aMC <<< "install lhapdf6"
+mg5_aMC <<< "install pythia8"
+
+# Install smd5LO model to MG5.
+rm -rf MG5_aMC/models/smd5LO
+unzip smd5LO.zip -d MG5_aMC/models

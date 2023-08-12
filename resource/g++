@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# g++ - inject ${INJECT_CXXFLAGS}
+#
+# This script wraps the original g++ program, which is found
+# based on environment ${PATH}.
+
+# Filter out ${CURDIR} from ${PATH}.
+CURDIR=$(readlink -f $(dirname $0))
+NEWPATH=
+for DIR in $(echo ${PATH} | sed 's/:/ /g'); do
+    if [ $(readlink -f ${DIR}) != ${CURDIR} ]; then
+        if [ ! -z ${NEWPATH} ]; then NEWPATH=${NEWPATH}:; fi
+        NEWPATH=${NEWPATH}${DIR}
+    fi
+done
+
+# Launch secondary make program.
+if [ ! -z "${INJECT_CXXFLAGS}" ]; then
+    echo NOTE: injecting into CXXFLAGS: "${INJECT_CXXFLAGS}"
+fi
+PATH=${NEWPATH} exec /usr/bin/env g++ ${INJECT_CXXFLAGS} "$@"
