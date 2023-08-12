@@ -4,6 +4,8 @@ A BSM model and MC analysis based on it.
 
 ## Build
 
+The building scripts are designed in general consideration, but till now only tuned and tested on PKU farm.
+
 Tow points of interposition are forced to proceed in building:
 
 * `make` -> `make -j${NCPU} CXX=g++` (for all libraries)
