@@ -1,5 +1,7 @@
 # smd5LO
 
+A BSM model and MC analysis based on it.
+
 ## Build
 
 Tow points of interposition are forced to proceed in building:
@@ -11,4 +13,4 @@ Before building the project, please `source thisroot.sh`.
 
 Then use `init_*` scripts to build corresponding versions of `MG5_aMC@NLO`.
 
-Test scripts are produced as `test-*` to test the built.
+Test scripts are produced as `test-*` to validate the built.
