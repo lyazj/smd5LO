@@ -1,0 +1,12 @@
+#!resource/mg5_aMC
+
+!rm -rf mumuzh
+generate mu+ mu- > z h
+output mumuzh
+launch mumuzh
+shower=Pythia8
+detector=Delphes
+analysis=ExRoot
+done
+set nevents=100
+done
