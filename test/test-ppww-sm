@@ -1,9 +1,9 @@
 #!../resource/mg5_aMC
 
-!rm -rf ppww
+!rm -rf ppww-sm
 generate p p > w+ w-
-output ppww
-launch ppww
+output ppww-sm
+launch ppww-sm
 shower=Pythia8
 detector=Delphes
 analysis=ExRoot
