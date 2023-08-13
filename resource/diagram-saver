@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# diagram-saver - Save diagrams from MG5_aMC@NLO.
+
+set -e
+
+if [ $# != 1 ]; then
+    >&2 echo usage: $(basename "$0") "<eps-diagram>"
+    exit 1
+fi
+
+name=$(basename "$1")
+if [ ${name##*.} != ps ] && [ ${name##*.} != eps ]; then
+    >&2 echo "$1": not an [e]ps file
+    exit 1
+fi
+
+mkdir -p diagrams
+echo waiting: cp "$1" diagrams/$name
+sleep 1
+echo running: cp "$1" diagrams/$name
+cp "$1" diagrams/$name
