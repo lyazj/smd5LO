@@ -1,11 +1,23 @@
-#!../resource/mg5_aMC
+#!/bin/bash
 #
 # run-proc - Run generated process.
 
-launch proc
+# Find and lock ${RUNNAME}.
+mkdir -p logs || exit
+while true; do
+    RUNNAME=${HOSTNAME}-$(date +%s.%N)
+    if mkdir logs/${RUNNAME} 2>/dev/null; then
+        break
+    fi
+    sleep $(printf '0.%06ds' ${RANDOM})  # mitigate contention
+done
+
+(../resource/mg5_aMC 0<<< "!date
+launch proc -n ${RUNNAME}
 shower=Pythia8
 detector=Delphes
 analysis=ExRoot
 done
-set nevents=100000
+set nevents=10000
 done
+!date" 1> logs/${RUNNAME}/1.log 2> logs/${RUNNAME}/2.log &)
