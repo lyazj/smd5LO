@@ -27,5 +27,6 @@ detector=Delphes
 analysis=ExRoot
 done
 set nevents=100000
+set iseed=$[($(date +%s+%N | sed 's/\([0-9]\+\)+0*\([0-9]\+\)/\1+\2/g')) % 900000000]
 done
 !date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log
