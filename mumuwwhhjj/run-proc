@@ -14,10 +14,11 @@ done
 
 (../resource/mg5_aMC 0<<< "!date
 launch proc -n ${RUNNAME} -m
+$(cat /proc/cpuinfo | grep MHz | wc -l)
 shower=Pythia8
 detector=Delphes
 analysis=ExRoot
 done
-set nevents=10000
+set nevents=100000
 done
 !date" 1> logs/${RUNNAME}/1.log 2> logs/${RUNNAME}/2.log &)
