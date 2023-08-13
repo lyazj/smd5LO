@@ -3,17 +3,18 @@
 # run-proc - Run generated process.
 
 # Find and lock ${RUNNAME}.
-mkdir -p logs || exit
+mkdir -p log run || exit
 while true; do
     RUNNAME=${HOSTNAME}-$(date +%s.%N)
-    if mkdir logs/${RUNNAME} 2>/dev/null; then
+    if mkdir log/${RUNNAME} 2>/dev/null; then
+        cp -r proc run/${RUNNAME} || exit
         break
     fi
     sleep $(printf '0.%06ds' ${RANDOM})  # mitigate contention
 done
 
 (../resource/mg5_aMC 0<<< "!date
-launch proc -n ${RUNNAME} -m
+launch run/${RUNNAME} -m
 $(cat /proc/cpuinfo | grep MHz | wc -l)
 shower=Pythia8
 detector=Delphes
@@ -21,4 +22,4 @@ analysis=ExRoot
 done
 set nevents=100000
 done
-!date" 1> logs/${RUNNAME}/1.log 2> logs/${RUNNAME}/2.log &)
+!date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log &)
