@@ -13,7 +13,7 @@ while true; do
 done
 
 (../resource/mg5_aMC 0<<< "!date
-launch proc -n ${RUNNAME}
+launch proc -n ${RUNNAME} -m
 shower=Pythia8
 detector=Delphes
 analysis=ExRoot
