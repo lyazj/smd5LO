@@ -23,7 +23,7 @@ for name in sorted(os.listdir('log')):
         node = name.split('-')[0]
         node_stat[node] = node_stat.get(node, False) | (not m_log1)
         if m_log1 is None:
-            print(os.path.join('run', name), 'running', *log1.split('\n')[-2:-1], sep='\t', file=sys.stderr)
+            print(os.path.join('log', name), 'running', *log1.split('\n')[-2:-1], sep='\t', file=sys.stderr)
         else:
             print(os.path.join('run', name), *m_log1.groups(), sep='\t')
             nevt_total += int(m_log1.group(4))

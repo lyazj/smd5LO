@@ -13,7 +13,7 @@ while true; do
     sleep $(printf '0.%06ds' ${RANDOM})  # mitigate contention
 done
 
-(../resource/mg5_aMC 0<<< "!date
+exec ../resource/mg5_aMC 0<<< "!date
 launch run/${RUNNAME} -m
 $(cat /proc/cpuinfo | grep MHz | wc -l)
 shower=Pythia8
@@ -22,4 +22,4 @@ analysis=ExRoot
 done
 set nevents=100000
 done
-!date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log &)
+!date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log
