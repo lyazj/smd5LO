@@ -23,7 +23,7 @@ The eps viewer of `MG5_aMC@NLO` has been set as `resource/diagram-saver` to save
 
 In directory `mumuwwhhjj`, a shortcut named `draw-diagrams` is provided for your convenience.
 
-Before generating events, run `make-proc` to generate `proc` directory as output of `MG5_aMC@NLO` to share between working processes.
+Before generating events, run `make-proc` to generate `proc` directory as output of `MG5_aMC@NLO` to share between subsequent runs.
 
 Finishing with `proc`, for each node in the cluster, edit `run-proc`, properly setting event number and other options, then execute it.
 
