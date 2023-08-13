@@ -1,0 +1,6 @@
+#!../resource/mg5_aMC
+#
+# gen-proc - Generate process without outputting it.
+
+import model smd5LO
+generate mu+ mu- > w+ w- h h j j

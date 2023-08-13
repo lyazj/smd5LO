@@ -1,0 +1,11 @@
+#!../resource/mg5_aMC
+#
+# run-proc - Run generated process.
+
+launch proc
+shower=Pythia8
+detector=Delphes
+analysis=ExRoot
+done
+set nevents=100000
+done

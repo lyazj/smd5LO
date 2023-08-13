@@ -1,4 +1,4 @@
-#!resource/mg5_aMC
+#!../resource/mg5_aMC
 
 !rm -rf ppww
 generate p p > w+ w-
