@@ -1,0 +1,13 @@
+#!resource/mg5_aMC
+
+import model smd5LO
+!rm -rf mumuwwhhjj-smd5LO
+generate mu+ mu- > w+ w- h h j j
+output mumuwwhhjj-smd5LO
+launch mumuwwhhjj-smd5LO
+shower=Pythia8
+detector=Delphes
+analysis=ExRoot
+done
+set nevents=100
+done

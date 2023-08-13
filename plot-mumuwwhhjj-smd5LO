@@ -1,0 +1,5 @@
+#!resource/mg5_aMC
+
+import model smd5LO
+generate mu+ mu- > w+ w- h h j j
+display diagrams
