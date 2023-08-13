@@ -2,7 +2,8 @@
 #
 # loop-all - Run loop-run on all nodes.
 
-for NODE in farm node01 node03 atlas; do
+# NOTE: DONOT run on farm for other people's convenience.
+for NODE in node01 node03 atlas; do
     echo ${NODE}
     ssh ${NODE} "source ~/.bash_profile && cd ${PWD} && (./loop-run </dev/null &>/dev/null &)"
 done
