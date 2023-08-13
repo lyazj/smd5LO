@@ -7,4 +7,4 @@
 
 trap '>&2 echo "$0": removing py.py...; rm -f py.py' EXIT
 trap 'exit 1' SIGINT SIGQUIT SIGTERM
-"$(dirname "$0")"/MG5_aMC/bin/mg5_aMC $*
+"$(dirname "$0")"/MG5_aMC/bin/mg5_aMC "$@"

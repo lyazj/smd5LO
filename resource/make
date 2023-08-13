@@ -4,18 +4,5 @@
 #
 # This script wraps the original make program, which is found
 # based on environment ${PATH}.
-#
-# UPDATE on Aug 12: specify g++ explicitly to disambiguous
 
-# Filter out ${CURDIR} from ${PATH}.
-CURDIR=$(readlink -f $(dirname $0))
-NEWPATH=
-for DIR in $(echo ${PATH} | sed 's/:/ /g'); do
-    if [ $(readlink -f ${DIR}) != ${CURDIR} ]; then
-        if [ ! -z ${NEWPATH} ]; then NEWPATH=${NEWPATH}:; fi
-        NEWPATH=${NEWPATH}${DIR}
-    fi
-done
-
-# Launch secondary make program.
-PATH=${NEWPATH} exec /usr/bin/env make -j$(cat /proc/cpuinfo | grep MHz | wc -l) CXX=${CURDIR}/g++ "$@"
+exec "$(next "$0")" -j$(cat /proc/cpuinfo | grep MHz | wc -l) "$@"
