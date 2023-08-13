@@ -2,6 +2,12 @@
 #
 # run-proc - Run generated process.
 
+# Avoid re-entrant.
+if ./list-run 127>&1 1>/dev/null 2>&127 | grep ${HOSTNAME} | grep -q busy; then
+    >&2 echo 'Exiting on busyness...'
+    exit 1
+fi
+
 # Find and lock ${RUNNAME}.
 mkdir -p log run || exit
 while true; do
