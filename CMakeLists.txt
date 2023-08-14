@@ -85,4 +85,4 @@ add_subdirectory(src/test)
 # 以下为其它可执行文件构建
 
 add_executable(plot src/plot.cpp)
-target_link_libraries(plot cms ROOT::Tree ROOT::Gpad ASImage)
+target_link_libraries(plot smd5 cms ROOT::Tree ROOT::Gpad ASImage)
