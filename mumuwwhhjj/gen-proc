@@ -3,4 +3,5 @@
 # gen-proc - Generate process without outputting it.
 
 import model smd5LO
-generate mu+ mu- > w+ w- h h j j
+generate    p p > mu+ mu+ j j h h QED=6 QCD=0 $$ w+ w+
+add process p p > mu- mu- j j h h QED=6 QCD=0 $$ w- w-
