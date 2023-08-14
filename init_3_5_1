@@ -28,7 +28,6 @@ wget -O MG5_aMC_v3.5.1.tar.gz \
 rm -rf MG5_aMC_v3_5_1
 tar zvxf MG5_aMC_v3.5.1.tar.gz
 ln -sf MG5_aMC_v3_5_1 MG5_aMC
-sed -i 's@python3@python2@' MG5_aMC/bin/mg5_aMC
 
 # Install required MG5 plugins.
 INJECT_CXXFLAGS='-Dprivate=public' mg5_aMC <<< "install ExRootAnalysis"
