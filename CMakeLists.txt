@@ -20,6 +20,18 @@ add_compile_definitions(${ROOT_DEFINITIONS})
 include_directories(${ROOT_INCLUDE_DIRS})
 link_directories(${ROOT_LIBRARY_DIR})
 
+# ExRootAnalysis 编译选项
+if(NOT EXROOTANA_DIR)
+    set(EXROOTANA_DIR ${PROJECT_SOURCE_DIR}/resource/MG5_aMC/ExRootAnalysis)
+endif()
+set(EXROOTANA_INC_DIR ${EXROOTANA_DIR} ${EXROOTANA_DIR}/ExRootAnalysis)
+set(EXROOTANA_LIB_DIR ${EXROOTANA_DIR})
+include_directories(${EXROOTANA_INC_DIR})
+link_directories(${EXROOTANA_LIB_DIR})
+add_compile_definitions(EXROOTANA_DIR="${EXROOTANA_DIR}")
+add_compile_definitions(EXROOTANA_EXTERNAL_DIR="${EXROOTANA_DIR}/ExRootAnalysis")
+add_compile_definitions(LIBEXROOTANA_SO="${EXROOTANA_LIB_DIR}/libExRootAnalysis.so")
+
 # Delphes 编译选项
 if(NOT DELPHES_DIR)
     set(DELPHES_DIR ${PROJECT_SOURCE_DIR}/resource/MG5_aMC/Delphes)
@@ -84,5 +96,8 @@ add_subdirectory(src/test)
 
 # 以下为其它可执行文件构建
 
+add_executable(eg-lhe src/eg-lhe.cpp)
+target_link_libraries(eg-lhe smd5 cms ExRootAnalysis ROOT::Tree)
+
 add_executable(plot src/plot.cpp)
-target_link_libraries(plot smd5 cms ROOT::Tree ROOT::Gpad ASImage)
+target_link_libraries(plot smd5 cms ExRootAnalysis ROOT::Tree ROOT::Physics ROOT::Gpad ASImage)
