@@ -42,4 +42,6 @@ sed -i 's@^\(\s*#*\)*\s*eps_viewer\s*=.*$@eps_viewer = '"${CURDIR}/diagram-saver
 
 # Install smd5LO model to MG5.
 rm -rf MG5_aMC/models/smd5LO
+rm -rf MG5_aMC/models/SMWeinbergXLO
 unzip smd5LO.zip -d MG5_aMC/models
+unzip SMWeinbergXLO.zip -d MG5_aMC/models
