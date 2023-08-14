@@ -9,3 +9,11 @@ diagrams
 proc
 run
 log
+build
+bin
+lib
+test/*
+!test/test-mumuwwhhjj-smd5LO
+!test/test-mumuzh-sm
+!test/test-mumuzh-smd5LO
+!test/test-ppww-sm
