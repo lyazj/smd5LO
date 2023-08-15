@@ -5,4 +5,4 @@
 # This script wraps the original make program, which is found
 # based on environment ${PATH}.
 
-exec "$(next "$0")" -j$(cat /proc/cpuinfo | grep MHz | wc -l) "$@"
+exec /usr/bin/make -j$(cat /proc/cpuinfo | grep MHz | wc -l) CXX=g++ LD=g++ "$@"

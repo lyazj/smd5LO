@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# g++ - inject ${INJECT_CXXFLAGS}
+# g++ - inject ${INJECT_CXXFLAGS} and ${INJECT_LDFLAGS}
 #
 # This script wraps the original g++ program, which is found
 # based on environment ${PATH}.
 
-exec "$(next "$0")" ${INJECT_CXXFLAGS} "$@"
+exec /usr/bin/g++ ${INJECT_CXXFLAGS} "$@" ${INJECT_LDFLAGS}
