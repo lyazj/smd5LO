@@ -7,7 +7,7 @@
 #include <TLorentzVector.h>
 #include <TH1F.h>
 #include <TCanvas.h>
-#include <TROOT.h>
+#include <TLegend.h>
 #include <iostream>
 #include <iomanip>
 #include <errno.h>
@@ -15,6 +15,14 @@
 #include <math.h>
 
 using namespace std;
+
+static TH1F *format(TH1F *th1f)
+{
+  th1f->SetBit(th1f->kNoTitle | th1f->kNoStats);
+  th1f->GetXaxis()->SetTitleOffset(1.2);
+  th1f->GetYaxis()->SetTitleOffset(1.3);
+  return th1f;
+}
 
 int main(int argc, char *argv[])
 {
@@ -28,16 +36,25 @@ int main(int argc, char *argv[])
   if(basedir.back() != '/') basedir.push_back('/');
 
   auto canvas = make_shared<TCanvas>();
+  canvas->SetTopMargin(0.02);
+  canvas->SetBottomMargin(0.10);
+  canvas->SetLeftMargin(0.10);
+  canvas->SetRightMargin(0.02);
+
   Int_t nbin = 30;
   Float_t pt_min = 0.0, pt_max = 1500.0;
   Float_t m_min = 0.0, m_max = 1500.0;
+  const char *label[2] = {
+    "\\font[132]{pp \\rightarrow H\\mu^{\\pm}\\mu^{\\pm}jj}",
+    "\\font[132]{pp \\rightarrow HH\\mu^{\\pm}\\mu^{\\pm}jj}",
+  };
   shared_ptr<TH1F> pt_max_mu[2] = {
-    make_shared<TH1F>("", "larger muon traverse momentum", nbin, pt_min, pt_max),
-    make_shared<TH1F>("", "larger muon traverse momentum", nbin, pt_min, pt_max),
+    make_shared<TH1F>("", label[0], nbin, pt_min, pt_max),
+    make_shared<TH1F>("", label[1], nbin, pt_min, pt_max),
   };
   shared_ptr<TH1F> m_inv_mu[2] = {
-    make_shared<TH1F>("", "invariant mass of muon pair", nbin, m_min, m_max),
-    make_shared<TH1F>("", "invariant mass of muon pair", nbin, m_min, m_max),
+    make_shared<TH1F>("", label[0], nbin, m_min, m_max),
+    make_shared<TH1F>("", label[1], nbin, m_min, m_max),
   };
 
   // Get running info and traverse over the runs.
@@ -104,12 +121,26 @@ int main(int argc, char *argv[])
     first_mg5run = false;
   }
 
-  pt_max_mu[0]->DrawNormalized();
-  pt_max_mu[1]->DrawNormalized("SAME");
+  TLegend *legend;
+
+  for(int i = 0; i < 2; ++i) {
+    pt_max_mu[i]->SetXTitle("p_{T}^{\\mu,max}");
+    pt_max_mu[i]->SetYTitle("density");
+    pt_max_mu[i]->SetLineColor(i + 2);
+    format(pt_max_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
+  }
+  legend = canvas->BuildLegend(0.7, 0.9, 0.9, 0.8);
+  legend->SetTextSize(0.03);
   canvas->SaveAs("pt_max_mu.pdf");
 
-  m_inv_mu[0]->DrawNormalized();
-  m_inv_mu[1]->DrawNormalized("SAME");
+  for(int i = 0; i < 2; ++i) {
+    m_inv_mu[i]->SetXTitle("m_{inv}^{\\mu^{+}\\mu^{-}}");
+    m_inv_mu[i]->SetYTitle("density");
+    m_inv_mu[i]->SetLineColor(i + 2);
+    format(m_inv_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
+  }
+  legend = canvas->BuildLegend(0.7, 0.9, 0.9, 0.8);
+  legend->SetTextSize(0.03);
   canvas->SaveAs("m_inv_mu.pdf");
 
   return 0;
