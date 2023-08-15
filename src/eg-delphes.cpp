@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   if(basedir.empty()) basedir = ".";
   if(basedir.back() != '/') basedir.push_back('/');
 
-  // Get running info and traverse over the runs.
+  // Get running info and traverse the runs.
   bool first_mg5run = true;
   for(const Mg5Run &mg5run : list_run(basedir)) {
     string lhepath = basedir + mg5run.path + "/Events/run_01/tag_1_delphes_events.root";
@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
     TClonesArray *events = NULL, *particles = NULL;
     get_branch(particles, Delphes, "Particle", "GenParticle") || ({ goto cleanup; false; });
 
-    // Traverse over tree entries.
+    // Traverse tree entries.
     if(first_mg5run) for(Long64_t i = 0; i < 100; ++i) {
       if(Delphes->GetEntry(i) == 0) break;
       cout << setw(8) << left << i << right;
 
-      // Traverse over particles.
+      // Traverse particles.
       Int_t npar = particles->GetEntries();
       for(Int_t j = 0; j < npar; ++j) {
         auto particle = (GenParticle *)particles->At(j);

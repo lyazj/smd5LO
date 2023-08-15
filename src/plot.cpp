@@ -96,7 +96,7 @@ void plot(string basedir)
     make_shared<TH1F>("", label[1], nbin, m_min, m_max),
   };
 
-  // Get running info and traverse over the runs.
+  // Get running info and traverse the runs.
   bool first_mg5run = true;
   vector<Mg5Run> mg5runs = list_run(basedir);
   if(mg5runs.empty()) {
@@ -126,11 +126,11 @@ void plot(string basedir)
     get_branch(events, LHEF, "Event", "TRootLHEFEvent") || ({ goto cleanup; false; });
     get_branch(particles, LHEF, "Particle", "TRootLHEFParticle") || ({ goto cleanup; false; });
 
-    // Traverse over tree entries.
+    // Traverse tree entries.
     for(Long64_t i = 0;; ++i) {
       if(LHEF->GetEntry(i) == 0) break;
 
-      // Traverse over particles.
+      // Traverse particles.
       Int_t npar = particles->GetEntries();
       Int_t nh = 0, nmu = 0;
       TLorentzVector ph[2], pmu[2];
