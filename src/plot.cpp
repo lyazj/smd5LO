@@ -1,3 +1,10 @@
+#ifdef __CLING__
+#include "../include/smd5/utils.h"
+#include "../include/smd5/branch.h"
+#include "../resource/MG5_aMC/ExRootAnalysis/ExRootAnalysis/ExRootClasses.h"
+R__LOAD_LIBRARY(../lib/libsmd5.so)
+R__LOAD_LIBRARY(../resource/MG5_aMC/ExRootAnalysis/libExRootAnalysis.so)
+#else  /* __CLING__ */
 #include "smd5/utils.h"
 #include "smd5/branch.h"
 #include "ExRootClasses.h"
@@ -13,8 +20,22 @@
 #include <errno.h>
 #include <memory>
 #include <math.h>
+#endif  /* __CLING__ */
 
 using namespace std;
+
+void plot(string basedir = "../mc/hhmumu");
+
+int main(int argc, char *argv[])
+{
+  // Get running directory from cmdline.
+  if(argc != 2) {
+    cerr << "usage: " << program_invocation_short_name << " <proc-dir>" << endl;
+    return 1;
+  }
+  plot(argv[1]);
+  return 0;
+}
 
 static TH1F *format(TH1F *th1f)
 {
@@ -24,14 +45,8 @@ static TH1F *format(TH1F *th1f)
   return th1f;
 }
 
-int main(int argc, char *argv[])
+void plot(string basedir)
 {
-  // Get running directory from cmdline.
-  if(argc != 2) {
-    cerr << "usage: " << program_invocation_short_name << " <proc-dir>" << endl;
-    return 1;
-  }
-  string basedir = argv[1];
   if(basedir.empty()) basedir = ".";
   if(basedir.back() != '/') basedir.push_back('/');
 
@@ -59,7 +74,12 @@ int main(int argc, char *argv[])
 
   // Get running info and traverse over the runs.
   bool first_mg5run = true;
-  for(const Mg5Run &mg5run : list_run(basedir)) {
+  vector<Mg5Run> mg5runs = list_run(basedir);
+  if(mg5runs.empty()) {
+    clog << "WARNING: directory without any result: \"" << basedir << "\"" << endl;
+    return;
+  }
+  for(const Mg5Run &mg5run : mg5runs) {
     string lhepath = basedir + mg5run.path + "/Events/run_01/unweighted_events.root";
     auto file = make_shared<TFile>(lhepath.c_str());
     if(!file->IsOpen()) {
@@ -142,6 +162,4 @@ int main(int argc, char *argv[])
   legend = canvas->BuildLegend(0.7, 0.9, 0.9, 0.8);
   legend->SetTextSize(0.03);
   canvas->SaveAs("m_inv_mu.pdf");
-
-  return 0;
 }

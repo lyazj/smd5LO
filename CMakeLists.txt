@@ -85,10 +85,12 @@ endif()
 # 以下为静态库文件构建
 
 file(GLOB CMS_SOURCES src/cms/*.cpp)
-add_library(cms ${CMS_SOURCES})
+add_library(cms SHARED ${CMS_SOURCES})
+target_link_libraries(cms ASImage)
 
 file(GLOB CMS_SOURCES src/smd5/*.cpp)
-add_library(smd5 ${CMS_SOURCES})
+add_library(smd5 SHARED ${CMS_SOURCES})
+target_link_libraries(smd5 ROOT::Tree)
 
 # 以下为测试程序构建
 
@@ -97,7 +99,7 @@ add_subdirectory(src/test)
 # 以下为其它可执行文件构建
 
 add_executable(eg-lhe src/eg-lhe.cpp)
-target_link_libraries(eg-lhe smd5 cms ExRootAnalysis ROOT::Tree)
+target_link_libraries(eg-lhe ExRootAnalysis smd5)
 
 add_executable(plot src/plot.cpp)
-target_link_libraries(plot smd5 cms ExRootAnalysis ROOT::Tree ROOT::Physics ROOT::Gpad ASImage)
+target_link_libraries(plot ExRootAnalysis smd5 ROOT::Physics ROOT::Gpad)

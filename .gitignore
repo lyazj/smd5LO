@@ -17,3 +17,5 @@ test/*
 !test/test-mumuzh-sm
 !test/test-mumuzh-smd5LO
 !test/test-ppww-sm
+*.swp
+*.pdf
