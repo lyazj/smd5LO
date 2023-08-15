@@ -1,6 +1,7 @@
 #include "smd5/utils.h"
 #include "smd5/branch.h"
 #include <ExRootClasses.h>
+#include <ExRootTreeReader.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TClonesArray.h>
@@ -13,6 +14,9 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+  // Linking hack.
+  ExRootTreeReader();
+
   // Get running directory from cmdline.
   if(argc != 2) {
     cerr << "usage: " << program_invocation_short_name << " <proc-dir>" << endl;
