@@ -55,3 +55,8 @@ In this example, after building succeeds, for $pp \to HH\mu\mu jj$ process, try 
 ```bash
 ../bin/plot ../mc/hhmumu/
 ```
+
+## Tested environment
+
+* Centos 7: ROOT 6.24/06
+* Ubuntu 22.04: ROOT 6.28/04
