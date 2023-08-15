@@ -33,7 +33,7 @@ shower=Pythia8
 detector=Delphes
 analysis=ExRoot
 done
-set nevents=100000
+set nevents=100
 set iseed=$(seed ${RUNNAME})
 done
 !date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log

@@ -2,7 +2,7 @@
 #
 # loop-run - Run run-proc until enough ${NEVT}.
 
-TARGET=1000000
+TARGET=100
 
 # Loop until enough events.
 while true; do
