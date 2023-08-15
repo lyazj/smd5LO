@@ -82,7 +82,7 @@ if(CMSSW_RLSE)
     add_compile_definitions(CMSSW_RLSE=${CMSSW_RLSE})
 endif()
 
-# 以下为静态库文件构建
+# 以下为库文件构建
 
 file(GLOB CMS_SOURCES src/cms/*.cpp)
 add_library(cms SHARED ${CMS_SOURCES})
