@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# import-mc - Import MC runs from another directory.
+
+if [ $# = 0 ]; then
+    >&2 echo "usage: $(basename "$0") <source-mc-dir>"
+    exit 1
+fi
+S_MCDIR=$1
+D_MCDIR=$(readlink -f mc)
+
+for PROC in $(ls ${S_MCDIR} 2>/dev/null); do
+    echo "Working on ${S_MCDIR}/${PROC}..."
+    pushd ${S_MCDIR}/${PROC} >/dev/null
+    for RUNDIR in $(./list-run 2>/dev/null | awk '{print $1}'); do
+        # Create symbolic links.
+        LOGDIR=log${RUNDIR:3}
+        RUNDIR=${RUNDIR}/Events/run_01
+        rm -rf ${D_MCDIR}/${PROC}/${RUNDIR} ${D_MCDIR}/${PROC}/${LOGDIR}
+        mkdir -p ${D_MCDIR}/${PROC}/${RUNDIR} ${D_MCDIR}/${PROC}/${LOGDIR}
+        ln -s $(readlink -f ${RUNDIR}/*) ${D_MCDIR}/${PROC}/${RUNDIR}
+        ln -s $(readlink -f ${LOGDIR}/*) ${D_MCDIR}/${PROC}/${LOGDIR}
+
+        # Supplement ExRootAnalysis result on demand.
+        if [ ! -r ${RUNDIR}/unweighted_events.root ]; then
+            echo "Converting: ${RUNDIR}/unweighted_events.lhe.gz -> ${D_MCDIR}/${PROC}/${RUNDIR}"
+            gzip -cd ${RUNDIR}/unweighted_events.lhe.gz > ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe
+            ${D_MCDIR}/../resource/MG5_aMC/ExRootAnalysis/ExRootLHEFConverter \
+                ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe \
+                ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.root
+            rm ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe
+        fi
+    done
+    popd >/dev/null
+done

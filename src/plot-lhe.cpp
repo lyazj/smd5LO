@@ -88,7 +88,7 @@ static void draw_and_save(vector<shared_ptr<TH1F>> &hists,
     hist->SetLineColor(i + 2);
     format(hist)->DrawNormalized("SAME");
   }
-  TLegend *legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
+  TLegend *legend = canvas->BuildLegend(0.6, 0.92, 0.95, 0.8);
   legend->SetTextSize(0.03);
   canvas->SaveAs(path);
 }
@@ -119,11 +119,11 @@ void plot(const vector<string> &procdirs)
     clog << "INFO: working directory: \"" << procdir << "\"" << endl;
 
     // Get running info and traverse the runs.
-    bool first_mg5run = true;
+    //bool first_mg5run = true;
     vector<Mg5Run> mg5runs = list_run(procdir);
     if(mg5runs.empty()) {
       clog << "WARNING: directory without any result: \"" << procdir << "\"" << endl;
-      return;
+      continue;
     }
     for(const Mg5Run &mg5run : mg5runs) {
       string lhepath = procdir + mg5run.path + "/Events/run_01/unweighted_events.root";
@@ -141,8 +141,8 @@ void plot(const vector<string> &procdirs)
         continue;
       }
 
-      // Print the LHEF tree.
-      if(first_mg5run) LHEF->Print();
+      //// Print the LHEF tree.
+      //if(first_mg5run) LHEF->Print();
 
       // Associate with branches.
       TClonesArray *events = NULL, *particles = NULL;
@@ -178,20 +178,22 @@ void plot(const vector<string> &procdirs)
         pt_mu[nh]->Fill(pmu_sum.Pt());
         eta_mu[nh]->Fill(pmu_sum.Eta());
         m_mu[nh]->Fill(pmu_sum.M());
-        ph_sum = ph[0] + ph[1];
-        pt_h[nh]->Fill(ph_sum.Pt());
-        eta_h[nh]->Fill(ph_sum.Eta());
-        m_h[nh]->Fill(ph_sum.M());
-
-        if((i + 1) % 1000 == 0) {
-          clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
+        if(nh) {
+          ph_sum = ph[0] + ph[1];
+          pt_h[nh]->Fill(ph_sum.Pt());
+          eta_h[nh]->Fill(ph_sum.Eta());
+          m_h[nh]->Fill(ph_sum.M());
         }
+
+        //if((i + 1) % 1000 == 0) {
+        //  clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
+        //}
       }
 
     cleanup:
       delete events;
       delete particles;
-      first_mg5run = false;
+      //first_mg5run = false;
     }
   }
 
@@ -199,7 +201,7 @@ void plot(const vector<string> &procdirs)
   draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
   draw_and_save(eta_mu, "eta_mu.pdf", "#eta^{#mu}", "density");
   draw_and_save(m_mu, "m_mu.pdf", "m_{inv}^{#mu}", "density");
-  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{#h}", "density");
-  draw_and_save(eta_h, "eta_h.pdf", "#eta^{#h}", "density");
-  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{#h}", "density");
+  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{H}", "density");
+  draw_and_save(eta_h, "eta_h.pdf", "#eta^{H}", "density");
+  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{H}", "density");
 }
