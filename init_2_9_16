@@ -40,7 +40,7 @@ mg5_aMC <<< "install pythia8"
 sed -i 's@^\(\s*#*\)*\s*eps_viewer\s*=.*$@eps_viewer = '"${CURDIR}/diagram-saver"'@g' \
     MG5_aMC/input/mg5_configuration.txt
 
-# Install smd5LO model to MG5.
+# Install 3rd-party MG5 models and PDFs.
 rm -rf MG5_aMC/models/smd5LO
 rm -rf MG5_aMC/models/SMWeinbergXLO
 rm -rf MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/NNPDF40_nnlo_as_01180
@@ -50,5 +50,5 @@ tar zvxf NNPDF40_nnlo_as_01180.tar.gz -C MG5_aMC/HEPTools/lhapdf6/share/LHAPDF
 grep -q '^331100\s' MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index || \
     echo '331100 NNPDF40_nnlo_as_01180 1' >> MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index
 
-# Save auxiliary root path.
+# Save current root directory.
 ln -sf "${ROOTSYS}" root
