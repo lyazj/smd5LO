@@ -120,6 +120,7 @@ void plot(string basedir)
       if(((MissingET *)mets->At(0))->MET >= 30) continue;
 
       Double_t ptmu1, ptmu2;
+      if(((Muon *)muons->At(0))->Charge * ((Muon *)muons->At(1))->Charge < 0) continue;
       ptmu1 = ((Muon *)muons->At(0))->PT;
       ptmu2 = ((Muon *)muons->At(1))->PT;
       if(ptmu1 < ptmu2) swap(ptmu1, ptmu2);
