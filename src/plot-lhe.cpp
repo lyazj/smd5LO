@@ -146,7 +146,7 @@ void plot(const vector<string> &procdirs)
 
       // Associate with branches.
       TClonesArray *events = NULL, *particles = NULL;
-      get_branch(events, LHEF, "Event", "TRootLHEFEvent") || ({ goto cleanup; false; });
+      //get_branch(events, LHEF, "Event", "TRootLHEFEvent") || ({ goto cleanup; false; });
       get_branch(particles, LHEF, "Particle", "TRootLHEFParticle") || ({ goto cleanup; false; });
 
       // Traverse tree entries.
@@ -156,7 +156,7 @@ void plot(const vector<string> &procdirs)
         // Traverse particles.
         Int_t npar = particles->GetEntries();
         Int_t nh = 0, nmu = 0;
-        TLorentzVector ph[2], pmu[2];
+        TLorentzVector ph[2], ph_sum, pmu[2], pmu_sum;
         for(Int_t j = 0; j < npar; ++j) {
 
           auto particle = (TRootLHEFParticle *)particles->At(j);
@@ -174,12 +174,14 @@ void plot(const vector<string> &procdirs)
           cerr << "ERROR: unexpected nh=" << nh << " and nmu=" << nmu << endl;
           continue;
         }
-        pt_mu[nh]->Fill((pmu[0] + pmu[1]).Pt());
-        eta_mu[nh]->Fill((pmu[0] + pmu[1]).Eta());
-        m_mu[nh]->Fill((pmu[0] + pmu[1]).M());
-        pt_h[nh]->Fill((ph[0] + ph[1]).Pt());
-        eta_h[nh]->Fill((ph[0] + ph[1]).Eta());
-        m_h[nh]->Fill((ph[0] + ph[1]).M());
+        pmu_sum = pmu[0] + pmu[1];
+        pt_mu[nh]->Fill(pmu_sum.Pt());
+        eta_mu[nh]->Fill(pmu_sum.Eta());
+        m_mu[nh]->Fill(pmu_sum.M());
+        ph_sum = ph[0] + ph[1];
+        pt_h[nh]->Fill(ph_sum.Pt());
+        eta_h[nh]->Fill(ph_sum.Eta());
+        m_h[nh]->Fill(ph_sum.M());
 
         if((i + 1) % 1000 == 0) {
           clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
