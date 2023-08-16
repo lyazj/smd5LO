@@ -42,11 +42,11 @@ set pdlabel=lhapdf
 set lhaid=331100
 set ptl=10
 set ptj=25
-set eta_max_pdg={11: 2.5}
+set eta_max_pdg={11:2.5}
 set etal=2.7
 set etaj=4.5
-set pt_min_pdg={13: 10, 25: 30}
-set mxx_min_pdg={25: 50}
+set pt_min_pdg={13:10,25:30}
+set mxx_min_pdg={25:50}
 set mmjj=700
 done
 !date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log
