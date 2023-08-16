@@ -139,10 +139,10 @@ void plot(string basedir)
         auto particle = (TRootLHEFParticle *)particles->At(j);
         if(particle->Status != 1) continue;
         if(particle->PID == 25) {
-          ph[nh++].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
+          if(++nh <= 2) ph[nh - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
         }
         if(abs(particle->PID) == 13) {
-          pmu[nmu++].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
+          if(++nmu <= 2) pmu[nmu - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
         }
       }
 

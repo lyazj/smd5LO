@@ -104,5 +104,8 @@ target_link_libraries(eg-lhe smd5)
 add_executable(eg-delphes src/eg-delphes.cpp)
 target_link_libraries(eg-delphes smd5)
 
-add_executable(plot src/plot.cpp)
-target_link_libraries(plot smd5 ROOT::Physics ROOT::Gpad)
+add_executable(plot-lhe src/plot-lhe.cpp)
+target_link_libraries(plot-lhe smd5 ROOT::Physics ROOT::Gpad)
+
+add_executable(plot-delphes src/plot-delphes.cpp)
+target_link_libraries(plot-delphes smd5 ROOT::Physics ROOT::Gpad)
