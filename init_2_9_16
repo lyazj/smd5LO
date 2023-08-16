@@ -49,3 +49,6 @@ unzip SMWeinbergXLO.zip -d MG5_aMC/models
 tar zvxf NNPDF40_nnlo_as_01180.tar.gz -C MG5_aMC/HEPTools/lhapdf6/share/LHAPDF
 grep -q '^331100\s' MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index || \
     echo '331100 NNPDF40_nnlo_as_01180 1' >> MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index
+
+# Save auxiliary root path.
+ln -sf "${ROOTSYS}" root
