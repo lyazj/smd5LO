@@ -3,7 +3,7 @@
 #include "../include/smd5/branch.h"
 #include "../resource/MG5_aMC/Delphes/classes/DelphesClasses.h"
 R__LOAD_LIBRARY(../lib/libsmd5.so)
-R__LOAD_LIBRARY(../resource/MG5_aMC/ExRootAnalysis/libExRootAnalysis.so)
+R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #else  /* __CLING__ */
 #include "smd5/utils.h"
 #include "smd5/branch.h"

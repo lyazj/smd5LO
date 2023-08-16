@@ -90,7 +90,7 @@ target_link_libraries(cms ASImage)
 
 file(GLOB CMS_SOURCES src/smd5/*.cpp)
 add_library(smd5 SHARED ${CMS_SOURCES})
-target_link_libraries(smd5 ExRootAnalysis Delphes ROOT::Tree)
+target_link_libraries(smd5 ROOT::Tree)
 
 # 以下为测试程序构建
 
@@ -99,13 +99,13 @@ add_subdirectory(src/test)
 # 以下为其它可执行文件构建
 
 add_executable(eg-lhe src/eg-lhe.cpp)
-target_link_libraries(eg-lhe smd5)
+target_link_libraries(eg-lhe ExRootAnalysis smd5)
 
 add_executable(eg-delphes src/eg-delphes.cpp)
-target_link_libraries(eg-delphes smd5)
+target_link_libraries(eg-delphes Delphes smd5)
 
 add_executable(plot-lhe src/plot-lhe.cpp)
-target_link_libraries(plot-lhe smd5 ROOT::Physics ROOT::Gpad)
+target_link_libraries(plot-lhe ExRootAnalysis smd5 ROOT::Physics ROOT::Gpad)
 
 add_executable(plot-delphes src/plot-delphes.cpp)
-target_link_libraries(plot-delphes smd5 ROOT::Physics ROOT::Gpad)
+target_link_libraries(plot-delphes Delphes smd5 ROOT::Physics ROOT::Gpad)
