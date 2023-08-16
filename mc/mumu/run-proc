@@ -38,5 +38,7 @@ analysis=ExRoot
 done
 set nevents=100000
 set iseed=$(seed ${RUNNAME})
+set pdlabel=lhapdf
+set lhaid=331100
 done
 !date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log
