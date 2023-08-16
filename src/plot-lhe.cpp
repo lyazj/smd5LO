@@ -179,7 +179,7 @@ void plot(string basedir)
   }
   legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
   legend->SetTextSize(0.03);
-  canvas->SaveAs("pt_max_mu.pdf");
+  canvas->SaveAs("pt_mu.pdf");
 
   for(int i = 0; i < 2; ++i) {
     eta_mu[i]->SetXTitle("\\eta^{\\mu}");
