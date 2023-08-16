@@ -31,7 +31,7 @@ ln -sf MG5_aMC_v2_9_16 MG5_aMC
 sed -i 's@python3@python2@' MG5_aMC/bin/mg5_aMC
 
 # Install required MG5 plugins.
-INJECT_CXXFLAGS=-I/usr/include/tirpc INJECT_LDFLAGS=-ltirpc mg5_aMC <<< "install ExRootAnalysis"
+mg5_aMC <<< "install ExRootAnalysis"
 mg5_aMC <<< "install Delphes"
 INJECT_CXXFLAGS="$(root-config --cflags) -fPIC" mg5_aMC <<< "install lhapdf6"
 mg5_aMC <<< "install pythia8"
