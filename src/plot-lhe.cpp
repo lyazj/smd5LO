@@ -25,7 +25,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/ExRootAnalysis/libExRootAnalysis.so)
 
 using namespace std;
 
-void plot(string basedir = "../mc/hhmumu");
+void plot(const vector<string> &procdirs = { "../mc/hhmumu" });
 
 int main(int argc, char *argv[])
 {
@@ -33,14 +33,15 @@ int main(int argc, char *argv[])
   ExRootTreeReader();
 
   // Get running directory from cmdline.
-  if(argc != 2) {
-    cerr << "usage: " << program_invocation_short_name << " <proc-dir>" << endl;
+  if(argc < 2) {
+    cerr << "usage: " << program_invocation_short_name << " <proc-dir> [ <proc-dir> ... ]" << endl;
     return 1;
   }
-  plot(argv[1]);
+  plot({ &argv[1], &argv[argc] });
   return 0;
 }
 
+// Set TH1F style before drawing the histogram.
 static TH1F *format(TH1F *th1f)
 {
   th1f->SetBit(th1f->kNoTitle | th1f->kNoStats);
@@ -52,182 +53,151 @@ static TH1F *format(TH1F *th1f)
   return th1f;
 }
 
-void plot(string basedir)
+// Create histograms with the same nbin, xmin, and xmax for one figure.
+static vector<shared_ptr<TH1F>> create_hists(const vector<string> &labels,
+    Int_t nbin, Float_t xmin, Float_t xmax)
 {
-  if(basedir.empty()) basedir = ".";
-  if(basedir.back() != '/') basedir.push_back('/');
+  vector<shared_ptr<TH1F>> hists;
+  hists.reserve(labels.size());
+  for(const string &label : labels) {
+    hists.emplace_back(make_shared<TH1F>("", label.c_str(), nbin, xmin, xmax));
+  }
+  return hists;
+}
 
+// Create canvas to draw histograms.
+static shared_ptr<TCanvas> create_canvas()
+{
   auto canvas = make_shared<TCanvas>();
   canvas->SetTopMargin(0.02);
   canvas->SetBottomMargin(0.10);
   canvas->SetLeftMargin(0.10);
   canvas->SetRightMargin(0.02);
+  return canvas;
+}
 
+// Draw and save histograms to a file.
+static void draw_and_save(vector<shared_ptr<TH1F>> &hists,
+    const char *path, const char *xtitle, const char *ytitle)
+{
+  auto canvas = create_canvas();
+  for(size_t i = 0; i < hists.size(); ++i) {
+    TH1F *hist = hists[i].get();
+    hist->SetXTitle(xtitle);
+    hist->SetYTitle(ytitle);
+    hist->SetLineColor(i + 2);
+    format(hist)->DrawNormalized("SAME");
+  }
+  TLegend *legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
+  legend->SetTextSize(0.03);
+  canvas->SaveAs(path);
+}
+
+void plot(const vector<string> &procdirs)
+{
+  // Create histograms.
   Int_t nbin = 30;
   Float_t pt_min = 0.0, pt_max = 1500.0;
   Float_t eta_min = -3.0, eta_max = 3.0;
   Float_t m_min = 0.0, m_max = 1500.0;
-  const char *label[2] = {
-    "\\font[132]{pp \\rightarrow H\\mu^{\\pm}\\mu^{\\pm}jj}",
-    "\\font[132]{pp \\rightarrow HH\\mu^{\\pm}\\mu^{\\pm}jj}",
+  vector<string> label = {
+    "#font[132]{pp #rightarrow #mu^{#pm}#mu^{#pm}jj}",
+    "#font[132]{pp #rightarrow H#mu^{#pm}#mu^{#pm}jj}",
+    "#font[132]{pp #rightarrow HH#mu^{#pm}#mu^{#pm}jj}",
   };
-  shared_ptr<TH1F> pt_mu[2] = {
-    make_shared<TH1F>("", label[0], nbin, pt_min, pt_max),
-    make_shared<TH1F>("", label[1], nbin, pt_min, pt_max),
-  };
-  shared_ptr<TH1F> eta_mu[2] = {
-    make_shared<TH1F>("", label[0], nbin, eta_min, eta_max),
-    make_shared<TH1F>("", label[1], nbin, eta_min, eta_max),
-  };
-  shared_ptr<TH1F> m_mu[2] = {
-    make_shared<TH1F>("", label[0], nbin, m_min, m_max),
-    make_shared<TH1F>("", label[1], nbin, m_min, m_max),
-  };
-  shared_ptr<TH1F> pt_h[2] = {
-    make_shared<TH1F>("", label[0], nbin, pt_min, pt_max),
-    make_shared<TH1F>("", label[1], nbin, pt_min, pt_max),
-  };
-  shared_ptr<TH1F> eta_h[2] = {
-    make_shared<TH1F>("", label[0], nbin, eta_min, eta_max),
-    make_shared<TH1F>("", label[1], nbin, eta_min, eta_max),
-  };
-  shared_ptr<TH1F> m_h[2] = {
-    make_shared<TH1F>("", label[0], nbin, m_min, m_max),
-    make_shared<TH1F>("", label[1], nbin, m_min, m_max),
-  };
+  vector<shared_ptr<TH1F>> pt_mu = create_hists(label, nbin, pt_min, pt_max);
+  vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
+  vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
+  vector<shared_ptr<TH1F>> pt_h = create_hists(label, nbin, pt_min, pt_max);
+  vector<shared_ptr<TH1F>> eta_h = create_hists(label, nbin, eta_min, eta_max);
+  vector<shared_ptr<TH1F>> m_h = create_hists(label, nbin, m_min, m_max);
 
-  // Get running info and traverse the runs.
-  bool first_mg5run = true;
-  vector<Mg5Run> mg5runs = list_run(basedir);
-  if(mg5runs.empty()) {
-    clog << "WARNING: directory without any result: \"" << basedir << "\"" << endl;
-    return;
-  }
-  for(const Mg5Run &mg5run : mg5runs) {
-    string lhepath = basedir + mg5run.path + "/Events/run_01/unweighted_events.root";
-    auto file = make_shared<TFile>(lhepath.c_str());
-    if(!file->IsOpen()) {
-      cerr << "ERROR: error opening file to read: " << lhepath << endl;
-      continue;
+  // Traverse process directories.
+  for(string procdir : procdirs) {
+    if(procdir.empty()) procdir = ".";
+    if(procdir.back() != '/') procdir.push_back('/');
+    clog << "INFO: working directory: \"" << procdir << "\"" << endl;
+
+    // Get running info and traverse the runs.
+    bool first_mg5run = true;
+    vector<Mg5Run> mg5runs = list_run(procdir);
+    if(mg5runs.empty()) {
+      clog << "WARNING: directory without any result: \"" << procdir << "\"" << endl;
+      return;
     }
-
-    // Get the LHEF tree.
-    auto LHEF = (TTree *)file->Get("LHEF");
-    if(LHEF == NULL) {
-      cerr << "ERROR: error getting LHEF tree: " << lhepath << endl;
-      continue;
-    }
-
-    // Print the LHEF tree.
-    if(first_mg5run) LHEF->Print();
-
-    // Associate with branches.
-    TClonesArray *events = NULL, *particles = NULL;
-    get_branch(events, LHEF, "Event", "TRootLHEFEvent") || ({ goto cleanup; false; });
-    get_branch(particles, LHEF, "Particle", "TRootLHEFParticle") || ({ goto cleanup; false; });
-
-    // Traverse tree entries.
-    for(Long64_t i = 0;; ++i) {
-      if(LHEF->GetEntry(i) == 0) break;
-
-      // Traverse particles.
-      Int_t npar = particles->GetEntries();
-      Int_t nh = 0, nmu = 0;
-      TLorentzVector ph[2], pmu[2];
-      for(Int_t j = 0; j < npar; ++j) {
-
-        auto particle = (TRootLHEFParticle *)particles->At(j);
-        if(particle->Status != 1) continue;
-        if(particle->PID == 25) {
-          if(++nh <= 2) ph[nh - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
-        }
-        if(abs(particle->PID) == 13) {
-          if(++nmu <= 2) pmu[nmu - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
-        }
-      }
-
-      // Fill histograms.
-      if(nh < 1 || nh > 2 || nmu != 2) {
-        cerr << "ERROR: unexpected nh=" << nh << " and nmu=" << nmu << endl;
+    for(const Mg5Run &mg5run : mg5runs) {
+      string lhepath = procdir + mg5run.path + "/Events/run_01/unweighted_events.root";
+      clog << "INFO: processing file: \"" << lhepath << "\"" << endl;
+      auto file = make_shared<TFile>(lhepath.c_str());
+      if(!file->IsOpen()) {
+        cerr << "ERROR: error opening file to read: " << lhepath << endl;
         continue;
       }
-      pt_mu[nh - 1]->Fill((pmu[0] + pmu[1]).Pt());
-      eta_mu[nh - 1]->Fill((pmu[0] + pmu[1]).Eta());
-      m_mu[nh - 1]->Fill((pmu[0] + pmu[1]).M());
-      pt_h[nh - 1]->Fill((ph[0] + ph[1]).Pt());
-      eta_h[nh - 1]->Fill((ph[0] + ph[1]).Eta());
-      m_h[nh - 1]->Fill((ph[0] + ph[1]).M());
 
-      if((i + 1) % 1000 == 0) {
-        clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
+      // Get the LHEF tree.
+      auto LHEF = (TTree *)file->Get("LHEF");
+      if(LHEF == NULL) {
+        cerr << "ERROR: error getting LHEF tree: " << lhepath << endl;
+        continue;
       }
+
+      // Print the LHEF tree.
+      if(first_mg5run) LHEF->Print();
+
+      // Associate with branches.
+      TClonesArray *events = NULL, *particles = NULL;
+      get_branch(events, LHEF, "Event", "TRootLHEFEvent") || ({ goto cleanup; false; });
+      get_branch(particles, LHEF, "Particle", "TRootLHEFParticle") || ({ goto cleanup; false; });
+
+      // Traverse tree entries.
+      for(Long64_t i = 0;; ++i) {
+        if(LHEF->GetEntry(i) == 0) break;
+
+        // Traverse particles.
+        Int_t npar = particles->GetEntries();
+        Int_t nh = 0, nmu = 0;
+        TLorentzVector ph[2], pmu[2];
+        for(Int_t j = 0; j < npar; ++j) {
+
+          auto particle = (TRootLHEFParticle *)particles->At(j);
+          if(particle->Status != 1) continue;
+          if(particle->PID == 25) {
+            if(++nh <= 2) ph[nh - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
+          }
+          if(abs(particle->PID) == 13) {
+            if(++nmu <= 2) pmu[nmu - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
+          }
+        }
+
+        // Fill histograms.
+        if(nh > 2 || nmu != 2) {
+          cerr << "ERROR: unexpected nh=" << nh << " and nmu=" << nmu << endl;
+          continue;
+        }
+        pt_mu[nh]->Fill((pmu[0] + pmu[1]).Pt());
+        eta_mu[nh]->Fill((pmu[0] + pmu[1]).Eta());
+        m_mu[nh]->Fill((pmu[0] + pmu[1]).M());
+        pt_h[nh]->Fill((ph[0] + ph[1]).Pt());
+        eta_h[nh]->Fill((ph[0] + ph[1]).Eta());
+        m_h[nh]->Fill((ph[0] + ph[1]).M());
+
+        if((i + 1) % 1000 == 0) {
+          clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
+        }
+      }
+
+    cleanup:
+      delete events;
+      delete particles;
+      first_mg5run = false;
     }
-
-  cleanup:
-    delete events;
-    delete particles;
-    first_mg5run = false;
   }
 
-  TLegend *legend;
-
-  for(int i = 0; i < 2; ++i) {
-    pt_mu[i]->SetXTitle("p_{T}^{\\mu}");
-    pt_mu[i]->SetYTitle("density");
-    pt_mu[i]->SetLineColor(i + 2);
-    format(pt_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("pt_mu.pdf");
-
-  for(int i = 0; i < 2; ++i) {
-    eta_mu[i]->SetXTitle("\\eta^{\\mu}");
-    eta_mu[i]->SetYTitle("density");
-    eta_mu[i]->SetLineColor(i + 2);
-    format(eta_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("eta_mu.pdf");
-
-  for(int i = 0; i < 2; ++i) {
-    m_mu[i]->SetXTitle("m_{inv}^{\\mu}");
-    m_mu[i]->SetYTitle("density");
-    m_mu[i]->SetLineColor(i + 2);
-    format(m_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("m_mu.pdf");
-
-  for(int i = 0; i < 2; ++i) {
-    pt_h[i]->SetXTitle("p_{T}^{H}");
-    pt_h[i]->SetYTitle("density");
-    pt_h[i]->SetLineColor(i + 2);
-    format(pt_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("pt_h.pdf");
-
-  for(int i = 0; i < 2; ++i) {
-    eta_h[i]->SetXTitle("\\eta^{H}");
-    eta_h[i]->SetYTitle("density");
-    eta_h[i]->SetLineColor(i + 2);
-    format(eta_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("eta_h.pdf");
-
-  for(int i = 0; i < 2; ++i) {
-    m_h[i]->SetXTitle("m_{inv}^{H}");
-    m_h[i]->SetYTitle("density");
-    m_h[i]->SetLineColor(i + 2);
-    format(m_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  }
-  legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  legend->SetTextSize(0.03);
-  canvas->SaveAs("m_h.pdf");
+  // Export histograms.
+  draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
+  draw_and_save(eta_mu, "eta_mu.pdf", "#eta^{#mu}", "density");
+  draw_and_save(m_mu, "m_mu.pdf", "m_{inv}^{#mu}", "density");
+  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{#h}", "density");
+  draw_and_save(eta_h, "eta_h.pdf", "#eta^{#h}", "density");
+  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{#h}", "density");
 }
