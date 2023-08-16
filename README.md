@@ -50,13 +50,13 @@ make -j<worker-number>
 
 Any content enclosed by `<>` should be properly substituted according to the environment and the platform.
 
-In this example, after building succeeds, for $pp \to HH\mu\mu jj$ process, try the following command: (`${PWD}` is assumed to be `<path-to-smd5LO>/build`)
+In this example, after building succeeds, for $pp \to HH\mu\mu jj$ process, try the following command to visualize LHE events: (`${PWD}` is assumed to be `<path-to-smd5LO>/build`)
 
 ```bash
-../bin/plot ../mc/hhmumu/
+../bin/plot-lhe ../mc/hhmumu/
 ```
 
 ## Tested environment
 
-* Centos 7: ROOT 6.24/06
+* CentOS 7: ROOT 6.24/06
 * Ubuntu 22.04: ROOT 6.28/04
