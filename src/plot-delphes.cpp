@@ -20,6 +20,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #include <errno.h>
 #include <memory>
 #include <math.h>
+#include <utility>
 #endif  /* __CLING__ */
 
 using namespace std;
@@ -62,41 +63,9 @@ void plot(string basedir)
   canvas->SetLeftMargin(0.10);
   canvas->SetRightMargin(0.02);
 
-  //Int_t nbin = 30;
-  //Float_t pt_min = 0.0, pt_max = 1500.0;
-  //Float_t eta_min = -3.0, eta_max = 3.0;
-  //Float_t m_min = 0.0, m_max = 1500.0;
-  //const char *label[2] = {
-  //  "\\font[132]{pp \\rightarrow H\\mu^{\\pm}\\mu^{\\pm}jj}",
-  //  "\\font[132]{pp \\rightarrow HH\\mu^{\\pm}\\mu^{\\pm}jj}",
-  //};
-  //shared_ptr<TH1F> pt_mu[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, pt_min, pt_max),
-  //  make_shared<TH1F>("", label[1], nbin, pt_min, pt_max),
-  //};
-  //shared_ptr<TH1F> eta_mu[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, eta_min, eta_max),
-  //  make_shared<TH1F>("", label[1], nbin, eta_min, eta_max),
-  //};
-  //shared_ptr<TH1F> m_mu[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, m_min, m_max),
-  //  make_shared<TH1F>("", label[1], nbin, m_min, m_max),
-  //};
-  //shared_ptr<TH1F> pt_h[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, pt_min, pt_max),
-  //  make_shared<TH1F>("", label[1], nbin, pt_min, pt_max),
-  //};
-  //shared_ptr<TH1F> eta_h[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, eta_min, eta_max),
-  //  make_shared<TH1F>("", label[1], nbin, eta_min, eta_max),
-  //};
-  //shared_ptr<TH1F> m_h[2] = {
-  //  make_shared<TH1F>("", label[0], nbin, m_min, m_max),
-  //  make_shared<TH1F>("", label[1], nbin, m_min, m_max),
-  //};
-
   // Get running info and traverse the runs.
   bool first_mg5run = true;
+  Long64_t cnt = 0;
   vector<Mg5Run> mg5runs = list_run(basedir);
   if(mg5runs.empty()) {
     clog << "WARNING: directory without any result: \"" << basedir << "\"" << endl;
@@ -121,110 +90,72 @@ void plot(string basedir)
     if(first_mg5run) Delphes->Print();
 
     // Associate with branches.
-    TClonesArray *particles = NULL;
-    get_branch(particles, Delphes, "Particle", "GenParticle") || ({ goto cleanup; false; });
+    TClonesArray *electrons = NULL, *muons = NULL, *jets = NULL, *mets = NULL;
+    bool branches_found = false;
+    do {
+      get_branch(electrons, Delphes, "Electron", "Electron") || ({ break; false; });
+      get_branch(muons, Delphes, "Muon", "Muon") || ({ break; false; });
+      get_branch(jets, Delphes, "Jet", "Jet") || ({ break; false; });
+      get_branch(mets, Delphes, "MissingET", "MissingET") || ({ break; false; });
+      branches_found = true;
+    } while(false);
+    if(!branches_found) {
+      cerr << "ERROR: error opening file to read: " << lhepath << endl;
+      goto cleanup;
+    }
 
     // Traverse tree entries.
     for(Long64_t i = 0;; ++i) {
       if(Delphes->GetEntry(i) == 0) break;
 
-      // Traverse particles.
-      Int_t npar = particles->GetEntries();
-      Int_t nh = 0, nmu = 0;
-      TLorentzVector ph[2], pmu[2];
-      for(Int_t j = 0; j < npar; ++j) {
-
-        auto particle = (GenParticle *)particles->At(j);
-        if(particle->Status != 1) continue;
-        if(particle->PID == 25) {
-          if(++nh <= 2) ph[nh - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
-        }
-        if(abs(particle->PID) == 13) {
-          if(++nmu <= 2) pmu[nmu - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
-        }
-      }
-
-      // Fill histograms.
-      if(nh < 1 || nh > 2 || nmu != 2) {
-        cerr << "ERROR: unexpected nh=" << nh << " and nmu=" << nmu << endl;
-        continue;
-      }
-      //pt_mu[nh - 1]->Fill((pmu[0] + pmu[1]).Pt());
-      //eta_mu[nh - 1]->Fill((pmu[0] + pmu[1]).Eta());
-      //m_mu[nh - 1]->Fill((pmu[0] + pmu[1]).M());
-      //pt_h[nh - 1]->Fill((ph[0] + ph[1]).Pt());
-      //eta_h[nh - 1]->Fill((ph[0] + ph[1]).Eta());
-      //m_h[nh - 1]->Fill((ph[0] + ph[1]).M());
-
       if((i + 1) % 1000 == 0) {
         clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
       }
+
+      // See arxiv:2012.09882, "Signal Region Cuts" on Page 4.
+
+      if(muons->GetEntries() != 2) continue;
+      if(jets->GetEntries() < 2) continue;
+      if(electrons->GetEntries()) continue;
+      if(((MissingET *)mets->At(0))->MET >= 30) continue;
+
+      Double_t ptmu1, ptmu2;
+      ptmu1 = ((Muon *)muons->At(0))->PT;
+      ptmu2 = ((Muon *)muons->At(1))->PT;
+      if(ptmu1 < ptmu2) swap(ptmu1, ptmu2);
+      if(ptmu1 <= 27) continue;
+      if(ptmu2 <= 10) continue;
+
+      Double_t ht = 0.0;
+      Int_t njet = jets->GetEntries();
+      vector<TLorentzVector> ptjets;
+      ptjets.reserve(njet);
+      bool has_tau = false;
+      for(Int_t j = 0; j < njet; ++j) {
+        Jet *jet = (Jet *)jets->At(j);
+        if(jet->TauTag & 0b010) {  // medium WP
+          has_tau = true; break;
+        }
+        ptjets.emplace_back(jet->P4());
+        ht += jet->PT;
+      }
+      if(has_tau) continue;
+      sort(ptjets.begin(), ptjets.end(), [](const TLorentzVector &p1, const TLorentzVector &p2) {
+        return p1.Pt() > p2.Pt();
+      });
+      if((ptjets[0] + ptjets[1]).M() <= 700) continue;
+      if(ht / ptmu1 >= 1.6) continue;
+
+      ++cnt;
     }
 
   cleanup:
-    delete particles;
+    delete electrons;
+    delete muons;
+    delete jets;
+    delete mets;
     first_mg5run = false;
   }
 
-  //TLegend *legend;
-
-  //for(int i = 0; i < 2; ++i) {
-  //  pt_mu[i]->SetXTitle("p_{T}^{\\mu}");
-  //  pt_mu[i]->SetYTitle("density");
-  //  pt_mu[i]->SetLineColor(i + 2);
-  //  format(pt_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("pt_max_mu.pdf");
-
-  //for(int i = 0; i < 2; ++i) {
-  //  eta_mu[i]->SetXTitle("\\eta^{\\mu}");
-  //  eta_mu[i]->SetYTitle("density");
-  //  eta_mu[i]->SetLineColor(i + 2);
-  //  format(eta_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("eta_mu.pdf");
-
-  //for(int i = 0; i < 2; ++i) {
-  //  m_mu[i]->SetXTitle("m_{inv}^{\\mu}");
-  //  m_mu[i]->SetYTitle("density");
-  //  m_mu[i]->SetLineColor(i + 2);
-  //  format(m_mu[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("m_mu.pdf");
-
-  //for(int i = 0; i < 2; ++i) {
-  //  pt_h[i]->SetXTitle("p_{T}^{H}");
-  //  pt_h[i]->SetYTitle("density");
-  //  pt_h[i]->SetLineColor(i + 2);
-  //  format(pt_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("pt_h.pdf");
-
-  //for(int i = 0; i < 2; ++i) {
-  //  eta_h[i]->SetXTitle("\\eta^{H}");
-  //  eta_h[i]->SetYTitle("density");
-  //  eta_h[i]->SetLineColor(i + 2);
-  //  format(eta_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("eta_h.pdf");
-
-  //for(int i = 0; i < 2; ++i) {
-  //  m_h[i]->SetXTitle("m_{inv}^{H}");
-  //  m_h[i]->SetYTitle("density");
-  //  m_h[i]->SetLineColor(i + 2);
-  //  format(m_h[i].get())->DrawNormalized(i == 0 ? "" : "SAME");
-  //}
-  //legend = canvas->BuildLegend(0.6, 0.9, 0.95, 0.8);
-  //legend->SetTextSize(0.03);
-  //canvas->SaveAs("m_h.pdf");
+  cout << "RESULT: " << cnt << " events remained after cutting" << endl;
 }
