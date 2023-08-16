@@ -50,10 +50,10 @@ make -j<worker-number>
 
 Any content enclosed by `<>` should be properly substituted according to the environment and the platform.
 
-In this example, after building succeeds, for $pp \to HH\mu\mu jj$ process, try the following command to visualize LHE events: (`${PWD}` is assumed to be `<path-to-smd5LO>/build`)
+In this example, after building succeeds, try the following command to visualize LHE events: (`${PWD}` is assumed to be `<path-to-smd5LO>/build`)
 
 ```bash
-../bin/plot-lhe ../mc/hhmumu/
+../bin/plot-lhe ../mc/*
 ```
 
 ## Tested environment

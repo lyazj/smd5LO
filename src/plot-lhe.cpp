@@ -83,6 +83,7 @@ static void draw_and_save(vector<shared_ptr<TH1F>> &hists,
   auto canvas = create_canvas();
   for(size_t i = 0; i < hists.size(); ++i) {
     TH1F *hist = hists[i].get();
+    if(hist->GetEntries() == 0) continue;
     hist->SetXTitle(xtitle);
     hist->SetYTitle(ytitle);
     hist->SetLineColor(i + 2);
