@@ -16,7 +16,7 @@ if [ ${name##*.} != ps ] && [ ${name##*.} != eps ]; then
 fi
 
 mkdir -p diagrams
-echo waiting: cp "$1" diagrams/$name
+echo waiting: mv "$1" diagrams/$name
 sleep 1
-echo running: cp "$1" diagrams/$name
-cp "$1" diagrams/$name
+echo running: mv "$1" diagrams/$name
+mv "$1" diagrams/$name
