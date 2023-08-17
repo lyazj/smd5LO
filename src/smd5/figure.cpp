@@ -53,6 +53,6 @@ void draw_and_save(vector<shared_ptr<TH1F>> &hists,
     format(hist)->DrawNormalized("SAME");
   }
   TLegend *legend = canvas->BuildLegend(0.6, 0.92, 0.95, 0.8);
-  legend->SetTextSize(0.03);
+  if(legend) legend->SetTextSize(0.03);
   canvas->SaveAs(path);
 }

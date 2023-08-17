@@ -3,6 +3,7 @@
 #include "../include/smd5/branch.h"
 #include "../include/smd5/figure.h"
 #include "../resource/MG5_aMC/ExRootAnalysis/ExRootAnalysis/ExRootClasses.h"
+#include "../resource/MG5_aMC/ExRootAnalysis/ExRootAnalysis/ExRootTreeReader.h"
 R__LOAD_LIBRARY(../lib/libsmd5.so)
 R__LOAD_LIBRARY(../resource/MG5_aMC/ExRootAnalysis/libExRootAnalysis.so)
 #else  /* __CLING__ */
@@ -25,7 +26,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/ExRootAnalysis/libExRootAnalysis.so)
 
 using namespace std;
 
-void plot(const vector<string> &procdirs = { "../mc/hhmumu" });
+void plot_lhe(const vector<string> &procdirs = { "../mc/hhmumu" });
 
 int main(int argc, char *argv[])
 {
@@ -37,11 +38,11 @@ int main(int argc, char *argv[])
     cerr << "usage: " << program_invocation_short_name << " <proc-dir> [ <proc-dir> ... ]" << endl;
     return 1;
   }
-  plot({ &argv[1], &argv[argc] });
+  plot_lhe({ &argv[1], &argv[argc] });
   return 0;
 }
 
-void plot(const vector<string> &procdirs)
+void plot_lhe(const vector<string> &procdirs)
 {
   // Create histograms.
   Int_t nbin = 30;
