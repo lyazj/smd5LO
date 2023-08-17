@@ -8,6 +8,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #else  /* __CLING__ */
 #include "smd5/utils.h"
 #include "smd5/branch.h"
+#include "smd5/particle.h"
 #include "smd5/figure.h"
 #include <classes/DelphesClasses.h>
 #include <TFile.h>
@@ -20,6 +21,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #include <errno.h>
 #include <memory>
 #include <math.h>
+#include <set>
 #endif  /* __CLING__ */
 
 using namespace std;
@@ -151,20 +153,21 @@ void plot_delphes(const vector<string> &procdirs)
         if((ptjets[0] + ptjets[1]).M() <= 700) continue;
         if(ht / pmu[0].Pt() >= 1.6) continue;
 
-        // Get nHiggs and nMuon.
-        Int_t nh = 0, nmu = 0;
+        // Get nHiggs.
+        set<Int_t> sh;
         Int_t npar = particles->GetEntries();
         for(Int_t j = 0; j < npar; ++j) {
           GenParticle *particle = (GenParticle *)particles->At(j);
           int status = abs(particle->Status);
           if(status % 10 != 2) continue;  // Consider only the hard process.
-          nh += particle->PID == 25;
-          nmu += abs(particle->PID) == 13;
+          if(particle->PID != 25) continue;
+          sh.insert(find_last_child(particles, j));  // Duplicate access not banned yet.
         }
+        Int_t nh = sh.size();
 
         // Fill histograms.
-        if(nh > 2 || nmu != 2) {
-          cerr << "ERROR: unexpected nh=" << nh << " and nmu=" << nmu << endl;
+        if(nh > 2) {
+          cerr << "ERROR: unexpected nh=" << nh << endl;
           continue;
         }
         TLorentzVector pmu_sum = pmu[0] + pmu[1];
