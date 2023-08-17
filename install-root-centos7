@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+cd "$(dirname "$0")"
+pushd resource
+
+wget https://root.cern/download/root_v6.24.08.Linux-centos7-x86_64-gcc4.8.tar.gz \
+    -O root_v6.24.08.Linux-centos7-x86_64-gcc4.8.tar.gz
+rm -rf root
+tar zvxf root_v6.24.08.Linux-centos7-x86_64-gcc4.8.tar.gz
