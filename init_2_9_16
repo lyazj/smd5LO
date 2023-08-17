@@ -51,4 +51,4 @@ grep -q '^331100\s' MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index || \
     echo '331100 NNPDF40_nnlo_as_01180 1' >> MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index
 
 # Save current root directory.
-ln -sf "${ROOTSYS}" root
+[ "$(readlink -f root)" != "$(readlink -f "${ROOTSYS}")" ] && ln -sf "${ROOTSYS}" root
