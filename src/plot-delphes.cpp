@@ -1,6 +1,7 @@
 #ifdef __CLING__
 #include "../include/smd5/utils.h"
 #include "../include/smd5/branch.h"
+#include "../include/smd5/particle.h"
 #include "../include/smd5/figure.h"
 #include "../resource/MG5_aMC/Delphes/classes/DelphesClasses.h"
 R__LOAD_LIBRARY(../lib/libsmd5.so)
