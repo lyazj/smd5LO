@@ -102,6 +102,10 @@ void plot_lhe(const vector<string> &procdirs)
       for(Long64_t i = 0;; ++i) {
         if(LHEF->GetEntry(i) == 0) break;
 
+        //if((i + 1) % 1000 == 0) {
+        //  clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
+        //}
+
         // Traverse particles.
         Int_t npar = particles->GetEntries();
         Int_t nh = 0, nmu = 0;
@@ -133,10 +137,6 @@ void plot_lhe(const vector<string> &procdirs)
           eta_h[nh]->Fill(ph_sum.Eta());
           m_h[nh]->Fill(ph_sum.M());
         }
-
-        //if((i + 1) % 1000 == 0) {
-        //  clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
-        //}
       }
 
     cleanup:

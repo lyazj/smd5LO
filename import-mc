@@ -23,13 +23,25 @@ for PROC in $(ls ${S_MCDIR} 2>/dev/null); do
 
         # Supplement ExRootAnalysis result on demand.
         if [ ! -r ${RUNDIR}/unweighted_events.root ]; then
-            echo "Converting: ${RUNDIR}/unweighted_events.lhe.gz -> ${D_MCDIR}/${PROC}/${RUNDIR}"
+            echo "Converting: ${RUNDIR}/unweighted_events.lhe.gz -> unweighted_events.root"
             gzip -cd ${RUNDIR}/unweighted_events.lhe.gz > ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe
             ${D_MCDIR}/../resource/MG5_aMC/ExRootAnalysis/ExRootLHEFConverter \
                 ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe \
                 ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.root
             rm ${D_MCDIR}/${PROC}/${RUNDIR}/unweighted_events.lhe
         fi
+
+        # Supplement Delphes result on demand.
+        if [ ! -r ${RUNDIR}/tag_1_delphes_events.root ]; then
+            echo "Converting: ${RUNDIR}/tag_1_pythia8_events.hepmc.gz -> tag_1_delphes_events.root"
+            rm ${D_MCDIR}/${PROC}/${RUNDIR}/tag_1_delphes.log
+            gzip -cd ${RUNDIR}/tag_1_pythia8_events.hepmc.gz | \
+                ${D_MCDIR}/../resource/MG5_aMC/Delphes/DelphesHepMC2 \
+                ${RUNDIR}/../../Cards/delphes_card.dat \
+                ${D_MCDIR}/${PROC}/${RUNDIR}/tag_1_delphes_events.root \
+                - &> ${D_MCDIR}/${PROC}/${RUNDIR}/tag_1_delphes.log
+        fi &
     done
     popd >/dev/null
 done
+wait
