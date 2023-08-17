@@ -27,7 +27,7 @@ seed() {
 }
 
 # Hide incompatible lhapdf installation.
-export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed 's@\(^\|:\)[^:]*lhapdf[^:]*@@g')
+export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed 's@^[^:]*lhapdf[^:]*:\?\|:[^:]*lhapdf[^:]*@@g')
 
 exec ../../resource/mg5_aMC 0<<< "!date
 launch run/${RUNNAME} -m
