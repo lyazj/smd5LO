@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python3 -m pip install scikit-build --user
+python3 -m pip install 'cmake>=3.13,<3.22' --user
