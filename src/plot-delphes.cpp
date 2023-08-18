@@ -59,9 +59,9 @@ void plot_delphes(const vector<string> &procdirs)
   vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
   vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
 
-  auto dumpfile = make_shared<TFile>("delphes_events.root", "RECREATE");
+  auto dumpfile = make_shared<TFile>("selected_events.root", "RECREATE");
   if(!dumpfile->IsOpen()) {
-    cerr << "ERROR: error opening file to write: " << "delphes_events.root" << endl;
+    cerr << "ERROR: error opening file to write: " << "selected_events.root" << endl;
     return;
   }
   TTree *dumptree = new TTree("Selected", "selected Delphes events");
