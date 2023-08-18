@@ -65,6 +65,7 @@ void plot_delphes(const vector<string> &procdirs)
     return;
   }
   TTree *dumptree = new TTree("Selected", "selected Delphes events");
+  auto dumptree_guard = shared_ptr<TTree>(dumptree);
 
   // Traverse process directories.
   for(string procdir : procdirs) {
