@@ -59,6 +59,13 @@ void plot_delphes(const vector<string> &procdirs)
   vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
   vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
 
+  auto dumpfile = make_shared<TFile>("tag_1_delphes_events.root", "RECREATE");
+  if(!dumpfile->IsOpen()) {
+    cerr << "ERROR: error opening file to write: " << "tag_1_delphes_events.root" << endl;
+    return;
+  }
+  auto dumptree = make_shared<TTree>();
+
   // Traverse process directories.
   for(string procdir : procdirs) {
     if(procdir.empty()) procdir = ".";
@@ -95,11 +102,11 @@ void plot_delphes(const vector<string> &procdirs)
       TClonesArray *particles, *electrons = NULL, *muons = NULL, *jets = NULL, *mets = NULL;
       bool branches_found = false;
       do {
-        get_branch(particles, Delphes, "Particle", "GenParticle") || ({ break; false; });
-        get_branch(electrons, Delphes, "Electron", "Electron") || ({ break; false; });
-        get_branch(muons, Delphes, "Muon", "Muon") || ({ break; false; });
-        get_branch(jets, Delphes, "Jet", "Jet") || ({ break; false; });
-        get_branch(mets, Delphes, "MissingET", "MissingET") || ({ break; false; });
+        get_branch(particles, Delphes, dumptree.get(), "Particle", "GenParticle") || ({ break; false; });
+        get_branch(electrons, Delphes, dumptree.get(), "Electron", "Electron") || ({ break; false; });
+        get_branch(muons, Delphes, dumptree.get(), "Muon", "Muon") || ({ break; false; });
+        get_branch(jets, Delphes, dumptree.get(), "Jet", "Jet") || ({ break; false; });
+        get_branch(mets, Delphes, dumptree.get(), "MissingET", "MissingET") || ({ break; false; });
         branches_found = true;
       } while(false);
       if(!branches_found) {
@@ -154,6 +161,8 @@ void plot_delphes(const vector<string> &procdirs)
         if((ptjets[0] + ptjets[1]).M() <= 700) continue;
         if(ht / pmu[0].Pt() >= 1.6) continue;
 
+        dumptree->Fill();
+
         // Get nHiggs.
         set<Int_t> sh;
         Int_t npar = particles->GetEntries();
@@ -178,6 +187,7 @@ void plot_delphes(const vector<string> &procdirs)
       }
 
     cleanup:
+      dumptree->ResetBranchAddresses();
       delete particles;
       delete electrons;
       delete muons;
@@ -186,6 +196,9 @@ void plot_delphes(const vector<string> &procdirs)
       //first_mg5run = false;
     }
   }
+
+  // Export selected events.
+  dumptree->Write();
 
   // Export histograms.
   draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
