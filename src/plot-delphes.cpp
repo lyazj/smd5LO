@@ -59,12 +59,12 @@ void plot_delphes(const vector<string> &procdirs)
   vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
   vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
 
-  auto dumpfile = make_shared<TFile>("tag_1_delphes_events.root", "RECREATE");
+  auto dumpfile = make_shared<TFile>("delphes_events.root", "RECREATE");
   if(!dumpfile->IsOpen()) {
-    cerr << "ERROR: error opening file to write: " << "tag_1_delphes_events.root" << endl;
+    cerr << "ERROR: error opening file to write: " << "delphes_events.root" << endl;
     return;
   }
-  auto dumptree = make_shared<TTree>();
+  TTree *dumptree = new TTree("Selected", "selected Delphes events");
 
   // Traverse process directories.
   for(string procdir : procdirs) {
@@ -102,11 +102,11 @@ void plot_delphes(const vector<string> &procdirs)
       TClonesArray *particles, *electrons = NULL, *muons = NULL, *jets = NULL, *mets = NULL;
       bool branches_found = false;
       do {
-        get_branch(particles, Delphes, dumptree.get(), "Particle", "GenParticle") || ({ break; false; });
-        get_branch(electrons, Delphes, dumptree.get(), "Electron", "Electron") || ({ break; false; });
-        get_branch(muons, Delphes, dumptree.get(), "Muon", "Muon") || ({ break; false; });
-        get_branch(jets, Delphes, dumptree.get(), "Jet", "Jet") || ({ break; false; });
-        get_branch(mets, Delphes, dumptree.get(), "MissingET", "MissingET") || ({ break; false; });
+        get_branch(particles, Delphes, dumptree, "Particle", "GenParticle") || ({ break; false; });
+        get_branch(electrons, Delphes, dumptree, "Electron", "Electron") || ({ break; false; });
+        get_branch(muons, Delphes, dumptree, "Muon", "Muon") || ({ break; false; });
+        get_branch(jets, Delphes, dumptree, "Jet", "Jet") || ({ break; false; });
+        get_branch(mets, Delphes, dumptree, "MissingET", "MissingET") || ({ break; false; });
         branches_found = true;
       } while(false);
       if(!branches_found) {
@@ -195,9 +195,10 @@ void plot_delphes(const vector<string> &procdirs)
       delete mets;
       //first_mg5run = false;
     }
+
   }
 
-  // Export selected events.
+  dumpfile->cd();
   dumptree->Write();
 
   // Export histograms.
