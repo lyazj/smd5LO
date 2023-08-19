@@ -1,0 +1,3 @@
+#!/bin/bash
+
+stdbuf -oL ../../bin/plot-lhe ../../mc/* 2>&1 | tee plot-lhe.log

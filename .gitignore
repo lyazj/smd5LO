@@ -1,4 +1,5 @@
 py.py
+*.swp
 .nfs*
 resource/MG5_aMC*
 resource/root*
@@ -18,5 +19,6 @@ test/*
 !test/test-mumuzh-sm
 !test/test-mumuzh-smd5LO
 !test/test-ppww-sm
-*.swp
+*.log
 *.pdf
+*.root
