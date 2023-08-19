@@ -56,6 +56,8 @@ In this example, after building succeeds, try the following command to visualize
 ../bin/plot-lhe ../mc/*
 ```
 
+The current recommended way to plot figures is to use or create scripts located in subdirectories of directory `plot`.
+
 ## Tested environment
 
 * CentOS 7: ROOT 6.24/06
