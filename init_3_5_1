@@ -1,0 +1,71 @@
+#!/bin/bash -v
+#
+# init - Install MG5, plugins, and models.
+#
+# Before launch this script, make sure $ROOTSYS/bin/thisroot.sh
+# has been sourced. On network issues, try again with a proxy
+# like clash. A pre-installed boost library will save much time,
+# and interfering building of large packages e.g., Delphes and
+# Pythia8, also accelerates the task dramatically.
+
+set -e
+cd "$(dirname "$0")"
+pushd resource
+
+# There are several wrappers in resource directory, which help
+# with performance and compatibility. Spaces affect splitting of
+# ${PATH} variable, thus are not allowed here.
+CURDIR="$(readlink -f .)"
+if echo "${CURDIR}" | grep -q ' '; then
+    echo ERROR: expect no space in path: \""${CURDIR}"\"
+    exit 1
+fi
+export PATH=${CURDIR}:${PATH}
+
+# Install MG5_aMC@NLO.
+wget -O MG5_aMC_v3.5.1.tar.gz \
+    https://launchpad.net/mg5amcnlo/3.0/3.5.x/+download/MG5_aMC_v3.5.1.tar.gz
+rm -rf MG5_aMC_v3_5_1
+tar zvxf MG5_aMC_v3.5.1.tar.gz
+ln -sf MG5_aMC_v3_5_1 MG5_aMC
+if python3 --version | grep -q '\<3\.[0-9]\{2,\}\>'; then
+    VERSION=0
+    for i in 9 8 7; do
+        if python3.${i} --version >/dev/null 2>/dev/null; then
+            VERSION=${i}
+            break
+        fi
+    done
+    if [ ${VERSION} = 0 ]; then
+        >&2 echo "ERROR: lhapdf6_py3 expects python>=3.7,<3.10"
+        exit 1
+    fi
+    sed -i "s@python3.*@python3.${VERSION}@" MG5_aMC/bin/mg5_aMC
+fi
+
+# Install required MG5 plugins.
+if g++ -ltirpc 2>&1 | grep -q 'cannot find -ltirpc'; then
+    mg5_aMC <<< "install ExRootAnalysis"
+else
+    INJECT_CXXFLAGS=-I/usr/include/tirpc INJECT_LDFLAGS=-ltirpc mg5_aMC <<< "install ExRootAnalysis"
+fi
+mg5_aMC <<< "install Delphes"
+INJECT_CXXFLAGS="$(root-config --cflags) -fPIC" mg5_aMC <<< "install lhapdf6"
+mg5_aMC <<< "install pythia8"
+
+# Register eps saver.
+sed -i 's@^\(\s*#*\)*\s*eps_viewer\s*=.*$@eps_viewer = '"${CURDIR}/diagram-saver"'@g' \
+    MG5_aMC/input/mg5_configuration.txt
+
+# Install 3rd-party MG5 models and PDFs.
+rm -rf MG5_aMC/models/smd5LO
+rm -rf MG5_aMC/models/SMWeinbergXLO
+rm -rf MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/NNPDF40_nnlo_as_01180
+unzip smd5LO.zip -d MG5_aMC/models
+unzip SMWeinbergXLO.zip -d MG5_aMC/models
+tar zvxf NNPDF40_nnlo_as_01180.tar.gz -C MG5_aMC/HEPTools/lhapdf6/share/LHAPDF
+grep -q '^331100\s' MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index || \
+    echo '331100 NNPDF40_nnlo_as_01180 1' >> MG5_aMC/HEPTools/lhapdf6/share/LHAPDF/pdfsets.index
+
+# Save current root directory.
+[ "$(readlink -f root)" != "$(readlink -f "${ROOTSYS}")" ] && ln -sf "${ROOTSYS}" root
