@@ -113,13 +113,14 @@ void plot_lhe(const vector<string> &procdirs)
         for(Int_t j = 0; j < npar; ++j) {
 
           auto particle = (TRootLHEFParticle *)particles->At(j);
-          if(particle->Status != 1) continue;
           if(particle->PID == 25) {
             if(++nh <= 2) ph[nh - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
           }
+          if(particle->Status != 1) continue;
           if(abs(particle->PID) == 13) {
             if(++nmu <= 2) pmu[nmu - 1].SetPtEtaPhiE(particle->PT, particle->Eta, particle->Phi, particle->E);
           }
+          // [TODO] bb inv-mass
         }
 
         // Fill histograms.
