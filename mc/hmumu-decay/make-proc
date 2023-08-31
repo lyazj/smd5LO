@@ -1,0 +1,8 @@
+#!../../resource/mg5_aMC
+#
+# make-proc - Generate process and output it.
+
+!rm -rf proc
+import gen-proc
+output proc
+display diagrams
