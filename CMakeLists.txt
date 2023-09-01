@@ -112,3 +112,6 @@ target_link_libraries(plot-delphes smd5 ROOT::Physics)
 
 add_executable(delphes-split src/delphes-split.cpp)
 target_link_libraries(delphes-split Delphes ROOT::Tree ROOT::Physics)
+
+add_executable(delphes-select src/delphes-select.cpp)
+target_link_libraries(delphes-select smd5 ROOT::Physics)
