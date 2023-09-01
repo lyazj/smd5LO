@@ -127,6 +127,14 @@ void plot_delphes(const vector<string> &procdirs)
   TTree *dumptree = new TTree("Selected", "selected Delphes events");
   auto dumptree_guard = shared_ptr<TTree>(dumptree);
 
+  // Additional branches.
+  Int_t numHiggs; dumptree->Branch("NumHiggs", &numHiggs);
+  Int_t numJet; dumptree->Branch("NumJet", &numJet);
+  Int_t numBottom; dumptree->Branch("NumBottom", &numBottom);
+  auto HiggsMomenta = new TClonesArray("TLorentzVector");
+  dumptree->Branch("HiggsMomenta", &HiggsMomenta);
+  Double_t HiggsDeltaR; dumptree->Branch("HiggsDeltaR", &HiggsDeltaR);
+
   // Traverse process directories.
   for(string procdir : procdirs) {
     if(procdir.empty()) procdir = ".";
@@ -158,14 +166,6 @@ void plot_delphes(const vector<string> &procdirs)
 
       //// Print the Delphes tree.
       //if(first_mg5run) Delphes->Print();
-
-      // Additional branches.
-      Int_t numHiggs; dumptree->Branch("NumHiggs", &numHiggs);
-      Int_t numJet; dumptree->Branch("NumJet", &numJet);
-      Int_t numBottom; dumptree->Branch("NumBottom", &numBottom);
-      auto HiggsMomenta = new TClonesArray("TLorentzVector");
-      dumptree->Branch("HiggsMomenta", &HiggsMomenta);
-      Double_t HiggsDeltaR; dumptree->Branch("HiggsDeltaR", &HiggsDeltaR);
 
       // Associate with branches.
       TClonesArray *particles, *electrons = NULL, *muons = NULL, *jets = NULL, *mets = NULL;
@@ -287,8 +287,6 @@ void plot_delphes(const vector<string> &procdirs)
       }
 
     cleanup:
-      dumptree->ResetBranchAddresses();
-      delete HiggsMomenta;
       delete particles;
       delete electrons;
       delete muons;
@@ -301,6 +299,7 @@ void plot_delphes(const vector<string> &procdirs)
 
   dumpfile->cd();
   dumptree->Write();
+  delete HiggsMomenta;
 
   // Export histograms.
   draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
