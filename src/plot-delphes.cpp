@@ -86,7 +86,8 @@ static Double_t higgs_reco2(const vector<TLorentzVector> &pb, const vector<int> 
     ph_g.reserve(2);
     Double_t drh_g = 0.0;
     int ih = 0;
-    for(auto [i0, i1] : g) {
+    for(const auto &i01 : g) {
+      int i0 = i01.first, i1 = i01.second;
       if(qb[i0] == qb[i1]) { ih = -1; break; }
       ph_g[ih++] = pb[i0] + pb[i1];
       drh_g += abs(pb[i0].DeltaR(pb[i1]));
