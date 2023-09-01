@@ -69,6 +69,7 @@ vector<Mg5Run> list_run(string path)
 
   // Read and parse output lines from stdout stream.
   Mg5Run run;
+  run.base = path;
   while(fgets(buf, sizeof buf, pp)) {
     string line = buf;
     if(line.empty() || line.back() != '\n') {
@@ -83,4 +84,26 @@ vector<Mg5Run> list_run(string path)
     runs.push_back(run);
   }
   return runs;
+}
+
+vector<string> Mg5Run::selected() const
+{
+  // Launch `ls` in directory `base`.
+  char buf[BUFSIZ];
+  string split_dir = "split" + path.substr(3);
+  vector<string> results;
+  string cmd = "cd '" + base + "' && ls '" + split_dir + "'/tag_1_selected_events_*.root";
+  FILE *pp = popen(cmd.c_str(), "r");
+
+  // Read and parse output lines from stdout stream.
+  while(fgets(buf, sizeof buf, pp)) {
+    string line = buf;
+    if(line.empty() || line.back() != '\n') {
+      fprintf(stderr, "ERROR: expect new line\n");
+      return { };
+    }
+    line.pop_back();
+    results.push_back(line);
+  }
+  return results;
 }

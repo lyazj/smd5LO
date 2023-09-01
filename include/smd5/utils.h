@@ -6,6 +6,7 @@
 
 // Information extracted from MG5_aMC@NLO output.
 struct Mg5Run {
+  std::string base;
   std::string path;
   std::string host;
   uint64_t time;
@@ -17,6 +18,7 @@ struct Mg5Run {
 
   Mg5Run();
   bool parse(const std::string &line);
+  std::vector<std::string> selected() const;
 };
 
 // Split string `str` into several segments with delimiters in `delims`.
