@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# split-run - Split runs into ${NEVT} events per ROOT file.
+
+NEVT=10000
+
+# [TODO]
