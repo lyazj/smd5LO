@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
   }
 
   // Open rootfile to read.
-  auto file = make_unique<TFile>(rootfile, "read");
+  auto file = make_shared<TFile>(rootfile, "read");
   if(!file->IsOpen()) {
     fprintf(stderr, "ERROR: error opening file: %s\n", rootfile);
     return 1;
@@ -47,13 +47,11 @@ int main(int argc, char *argv[])
   // Set up branches of interest.
   vector<pair<const char *, TClonesArray *>> branches;
   for(const auto &name_type : {
-    make_pair("Jet", "Jet"),
-    make_pair("FatJet", "Jet"),
     make_pair("Particle", "GenParticle"),
-    make_pair("Track", "Track"),
-    make_pair("Tower", "Tower"),
+    make_pair("Electron", "Electron"),
     make_pair("Muon", "Muon"),
-    make_pair("ParticleFlowCandidate", "ParticleFlowCandidate"),
+    make_pair("Jet", "Jet"),
+    make_pair("MissingET", "MissingET"),
   }) {
     const char *name = name_type.first, *type = name_type.second;
     TBranch *branch = delphes->GetBranch(name);
@@ -78,10 +76,10 @@ int main(int argc, char *argv[])
     sprintf(part_buf, "%06zu", part_num + 1);
     string outname = basename(rootfile);
     outname.resize(outname.size() - 5);
-    outname += "_"s + part_buf + ".root";
+    outname += string("_") + part_buf + ".root";
 
     // Open partition file to write.
-    auto outfile = make_unique<TFile>(outname.c_str(), "recreate");
+    auto outfile = make_shared<TFile>(outname.c_str(), "recreate");
     if(!file->IsOpen()) {
       fprintf(stderr, "ERROR: error opening file: %s\n", rootfile);
       return 1;
