@@ -53,8 +53,7 @@ static Double_t higgs_reco1(const vector<TLorentzVector> &pb, const vector<int> 
   for(int b0 =  0; b0 <= nb - 2; ++b0) {
   for(int b1 = b0; b1 <= nb - 1; ++b1) {
 
-    vector<TLorentzVector> ph_g;
-    ph_g.reserve(2);
+    vector<TLorentzVector> ph_g(1);
     Double_t drh_g = 0.0;
     if(qb[0] == qb[1]) continue;
     ph_g[0] = pb[0] + pb[1];
@@ -82,8 +81,7 @@ static Double_t higgs_reco2(const vector<TLorentzVector> &pb, const vector<int> 
   // Higgs reconstruction 2/2: Which 2 b-jets are produced together.
   for(const auto &g : vector<vector<pair<int, int>>> { {{0,1},{2,3}}, {{0,2},{1,3}}, {{0,3},{1,2}} }) {
 
-    vector<TLorentzVector> ph_g;
-    ph_g.reserve(2);
+    vector<TLorentzVector> ph_g(2);
     Double_t drh_g = 0.0;
     int ih = 0;
     for(const auto &i01 : g) {
@@ -165,7 +163,7 @@ void plot_delphes(const vector<string> &procdirs)
       Int_t numHiggs; dumptree->Branch("NumHiggs", &numHiggs);
       Int_t numJet; dumptree->Branch("NumJet", &numJet);
       Int_t numBottom; dumptree->Branch("NumBottom", &numBottom);
-      auto HiggsMomenta = make_shared<TClonesArray>("TLorentzVector");
+      auto HiggsMomenta = new TClonesArray("TLorentzVector");
       dumptree->Branch("HiggsMomenta", &HiggsMomenta);
       Double_t HiggsDeltaR; dumptree->Branch("HiggsDeltaR", &HiggsDeltaR);
 
@@ -267,12 +265,12 @@ void plot_delphes(const vector<string> &procdirs)
         } else {
           drh = higgs_reco2(pb, qb, ph);
         }
-        if((int)ph.size() != nh) {
-          cerr << "ERROR: " << ph.size() << " Higgs bosons constructed, expect " << nh << endl;
+        if((int)ph.size() < nh) {  // [NOTE] reconstruction MAY fail
+          //cerr << "WARNING: " << ph.size() << " Higgs bosons constructed, expect " << nh << endl;
           continue;
         }
         HiggsMomenta->Clear();
-        for(int ih = 0; ih < nh; ++ih) new((void *)HiggsMomenta->At(ih)) TLorentzVector(ph[ih]);
+        for(int ih = 0; ih < nh; ++ih) new((void *)HiggsMomenta->operator[](ih)) TLorentzVector(ph[ih]);
         HiggsDeltaR = drh;
 
         // Fill dumptree and histograms.
@@ -290,6 +288,7 @@ void plot_delphes(const vector<string> &procdirs)
 
     cleanup:
       dumptree->ResetBranchAddresses();
+      delete HiggsMomenta;
       delete particles;
       delete electrons;
       delete muons;
