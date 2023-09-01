@@ -43,6 +43,64 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+static Double_t higgs_reco1(const vector<TLorentzVector> &pb, const vector<int> &qb, vector<TLorentzVector> &ph)
+{
+  int nb = pb.size();
+  ph = { };
+  Double_t drh = INFINITY;
+
+  // Higgs reconstruction 1/1: Which 2 b-jets to use.
+  for(int b0 =  0; b0 <= nb - 2; ++b0) {
+  for(int b1 = b0; b1 <= nb - 1; ++b1) {
+
+    vector<TLorentzVector> ph_g;
+    ph_g.reserve(2);
+    Double_t drh_g = 0.0;
+    if(qb[0] == qb[1]) continue;
+    ph_g[0] = pb[0] + pb[1];
+    drh_g += abs(pb[0].DeltaR(pb[1]));
+    if(drh_g < drh) {
+      ph = move(ph_g);
+      drh = drh_g;
+    }
+
+  } }
+  return drh;
+}
+
+static Double_t higgs_reco2(const vector<TLorentzVector> &pb, const vector<int> &qb, vector<TLorentzVector> &ph)
+{
+  int nb = pb.size();
+  ph = { };
+  Double_t drh = INFINITY;
+
+  // Higgs reconstruction 1/2: Which 4 b-jets to use.
+  for(int b0 =  0; b0 <= nb - 4; ++b0) {
+  for(int b1 = b0; b1 <= nb - 3; ++b1) {
+  for(int b2 = b1; b2 <= nb - 2; ++b2) {
+  for(int b3 = b2; b3 <= nb - 1; ++b3) {
+  // Higgs reconstruction 2/2: Which 2 b-jets are produced together.
+  for(const auto &g : vector<vector<pair<int, int>>> { {{0,1},{2,3}}, {{0,2},{1,3}}, {{0,3},{1,2}} }) {
+
+    vector<TLorentzVector> ph_g;
+    ph_g.reserve(2);
+    Double_t drh_g = 0.0;
+    int ih = 0;
+    for(auto [i0, i1] : g) {
+      if(qb[i0] == qb[i1]) { ih = -1; break; }
+      ph_g[ih++] = pb[i0] + pb[i1];
+      drh_g += abs(pb[i0].DeltaR(pb[i1]));
+    }
+    if(ih < 0) continue;
+    if(drh_g < drh) {
+      ph = move(ph_g);
+      drh = drh_g;
+    }
+
+  } } } } }
+  return drh;
+}
+
 void plot_delphes(const vector<string> &procdirs)
 {
   // Create histograms.
@@ -58,6 +116,9 @@ void plot_delphes(const vector<string> &procdirs)
   vector<shared_ptr<TH1F>> pt_mu = create_hists(label, nbin, pt_min, pt_max);
   vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
   vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
+  vector<shared_ptr<TH1F>> pt_h = create_hists(label, nbin, pt_min, pt_max);
+  vector<shared_ptr<TH1F>> eta_h = create_hists(label, nbin, eta_min, eta_max);
+  vector<shared_ptr<TH1F>> m_h = create_hists(label, nbin, m_min, m_max);
 
   auto dumpfile = make_shared<TFile>("selected_events.root", "RECREATE");
   if(!dumpfile->IsOpen()) {
@@ -99,12 +160,20 @@ void plot_delphes(const vector<string> &procdirs)
       //// Print the Delphes tree.
       //if(first_mg5run) Delphes->Print();
 
+      // Additional branches.
+      Int_t numHiggs; dumptree->Branch("NumHiggs", &numHiggs);
+      Int_t numJet; dumptree->Branch("NumJet", &numJet);
+      Int_t numBottom; dumptree->Branch("NumBottom", &numBottom);
+      auto HiggsMomenta = make_shared<TClonesArray>("TLorentzVector");
+      dumptree->Branch("HiggsMomenta", &HiggsMomenta);
+      Double_t HiggsDeltaR; dumptree->Branch("HiggsDeltaR", &HiggsDeltaR);
+
       // Associate with branches.
       TClonesArray *particles, *electrons = NULL, *muons = NULL, *jets = NULL, *mets = NULL;
       bool branches_found = false;
       do {
-        get_branch(particles, Delphes, dumptree, "Particle", "GenParticle") || ({ break; false; });
-        get_branch(electrons, Delphes, dumptree, "Electron", "Electron") || ({ break; false; });
+        get_branch(particles, Delphes, "Particle", "GenParticle") || ({ break; false; });
+        get_branch(electrons, Delphes, "Electron", "Electron") || ({ break; false; });
         get_branch(muons, Delphes, dumptree, "Muon", "Muon") || ({ break; false; });
         get_branch(jets, Delphes, dumptree, "Jet", "Jet") || ({ break; false; });
         get_branch(mets, Delphes, dumptree, "MissingET", "MissingET") || ({ break; false; });
@@ -142,28 +211,6 @@ void plot_delphes(const vector<string> &procdirs)
         if(pmu[0].Pt() <= 27) continue;
         if(pmu[1].Pt() <= 10) continue;
 
-        Double_t ht = 0.0;
-        Int_t njet = jets->GetEntries();
-        vector<TLorentzVector> ptjets;
-        ptjets.reserve(njet);
-        bool has_tau = false;
-        for(Int_t j = 0; j < njet; ++j) {
-          Jet *jet = (Jet *)jets->At(j);
-          if(jet->TauTag & 0b010) {  // medium WP
-            has_tau = true; break;
-          }
-          ptjets.emplace_back(jet->P4());
-          ht += jet->PT;
-        }
-        if(has_tau) continue;
-        sort(ptjets.begin(), ptjets.end(), [](const TLorentzVector &p1, const TLorentzVector &p2) {
-          return p1.Pt() > p2.Pt();
-        });
-        if((ptjets[0] + ptjets[1]).M() <= 700) continue;
-        if(ht / pmu[0].Pt() >= 1.6) continue;
-
-        dumptree->Fill();
-
         // Get nHiggs.
         set<Int_t> sh;
         Int_t npar = particles->GetEntries();
@@ -175,16 +222,69 @@ void plot_delphes(const vector<string> &procdirs)
           sh.insert(find_last_child(particles, j));  // Duplicate access not banned yet.
         }
         Int_t nh = sh.size();
-
-        // Fill histograms.
         if(nh > 2) {
           cerr << "ERROR: unexpected nh=" << nh << endl;
           continue;
         }
+        numHiggs = nh;
+
+        Double_t ht = 0.0;
+        Int_t njet = jets->GetEntries();
+        vector<TLorentzVector> pj;
+        vector<TLorentzVector> pb;
+        vector<Int_t> qb;
+        bool has_tau = false;
+        for(Int_t j = 0; j < njet; ++j) {
+          Jet *jet = (Jet *)jets->At(j);
+          if(jet->TauTag) {  // only one WP
+            has_tau = true; break;
+          }
+          if(jet->BTag) {  // only one WP
+            pb.emplace_back(jet->P4());
+            qb.push_back(jet->Charge);
+          } else {
+            pj.emplace_back(jet->P4());
+          }
+          ht += jet->PT;  // [TODO] which ones add up to Ht?
+        }
+        if(has_tau) continue;
+        int nj = pj.size(), nb = pb.size();
+        if(nj < 2) continue;
+        if(nb < 2 * nh) continue;
+        sort(pj.begin(), pj.end(), [](const TLorentzVector &p1, const TLorentzVector &p2) {
+          return p1.Pt() > p2.Pt();
+        });
+        if((pj[0] + pj[1]).M() <= 700) continue;
+        if(ht / pmu[0].Pt() >= 1.6) continue;  // [TODO] Change this value?
+        numJet = nj, numBottom = nb;
+
+        // Reconstruct Higgs bosons from final b-jets.
+        vector<TLorentzVector> ph;
+        Double_t drh = 0.0;
+        if(nh == 1) {
+          drh = higgs_reco1(pb, qb, ph);
+        } else {
+          drh = higgs_reco2(pb, qb, ph);
+        }
+        if((int)ph.size() != nh) {
+          cerr << "ERROR: " << ph.size() << " Higgs bosons constructed, expect " << nh << endl;
+          continue;
+        }
+        HiggsMomenta->Clear();
+        for(int ih = 0; ih < nh; ++ih) new((void *)HiggsMomenta->At(ih)) TLorentzVector(ph[ih]);
+        HiggsDeltaR = drh;
+
+        // Fill dumptree and histograms.
+        dumptree->Fill();
         TLorentzVector pmu_sum = pmu[0] + pmu[1];
         pt_mu[nh]->Fill(pmu_sum.Pt());
         eta_mu[nh]->Fill(pmu_sum.Eta());
         m_mu[nh]->Fill(pmu_sum.M());
+        for(const TLorentzVector &p : ph) {
+          pt_h[nh]->Fill(p.Pt());
+          eta_h[nh]->Fill(p.Eta());
+          m_h[nh]->Fill(p.M());
+        }
       }
 
     cleanup:
@@ -206,4 +306,7 @@ void plot_delphes(const vector<string> &procdirs)
   draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
   draw_and_save(eta_mu, "eta_mu.pdf", "#eta^{#mu}", "density");
   draw_and_save(m_mu, "m_mu.pdf", "m_{inv}^{#mu}", "density");
+  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{#h}", "density");
+  draw_and_save(eta_h, "eta_h.pdf", "#eta^{#h}", "density");
+  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{#h}", "density");
 }
