@@ -4,13 +4,4 @@
 
 NEVT=10000
 
-mkdir -p split
-SPLIT=$(readlink -f ../../bin/delphes-split)
-for SRCDIR in $(./list-run 2>/dev/null | awk '{print $1}'); do
-    DSTDIR=split${SRCDIR:3}
-    SRCDIR=$(readlink -f ${SRCDIR})
-    mkdir -p ${DSTDIR}
-    pushd ${DSTDIR}
-    ${SPLIT} ${SRCDIR}/Events/run_01/tag_1_delphes_events.root ${NEVT} &> split.log &
-    popd
-done
+exec ../../src/mc/split-run $NEVT

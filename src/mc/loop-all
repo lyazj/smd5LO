@@ -3,6 +3,7 @@
 # loop-all - Run loop-run on all nodes.
 
 # NOTE: DONOT run on farm for other people's convenience.
-NODES="node01 node03 node05 node06 atlas"
-
-exec ../../src/mc/loop-all $NODES
+for NODE in "$@"; do
+    echo ${NODE}
+    ssh ${NODE} "cd ${PWD} && (./loop-run </dev/null &>/dev/null &)"
+done

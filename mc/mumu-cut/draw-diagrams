@@ -1,6 +1,1 @@
-#!../../resource/mg5_aMC
-#
-# draw-diagrams - Draw process diagrams.
-
-import gen-proc
-display diagrams
+../../src/mc/draw-diagrams
