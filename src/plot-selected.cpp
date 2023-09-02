@@ -147,7 +147,7 @@ void plot_selected(const vector<string> &procdirs)
   draw_and_save(pt_mu, "pt_mu.pdf", "p_{T}^{#mu}", "density");
   draw_and_save(eta_mu, "eta_mu.pdf", "#eta^{#mu}", "density");
   draw_and_save(m_mu, "m_mu.pdf", "m_{inv}^{#mu}", "density");
-  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{#h}", "density");
-  draw_and_save(eta_h, "eta_h.pdf", "#eta^{#h}", "density");
-  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{#h}", "density");
+  draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{h}", "density");
+  draw_and_save(eta_h, "eta_h.pdf", "#eta^{h}", "density");
+  draw_and_save(m_h, "m_h.pdf", "m_{inv}^{h}", "density");
 }
