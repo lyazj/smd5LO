@@ -98,7 +98,7 @@ void plot_selected(const vector<string> &procdirs)
       bool branches_found = false;
       do {
         get_branch(muons, Selected, "Muon", "Muon") || ({ break; false; });
-        !Selected->SetBranchAddress("NumHiggs", &numHiggs) || ({ break; false; });
+        Selected->SetBranchAddress("NumHiggs", &numHiggs) && ({ break; false; });
         get_branch(HiggsMomenta, Selected, "HiggsMomenta", "TLorentzVector") || ({ break; false; });
         branches_found = true;
       } while(false);
