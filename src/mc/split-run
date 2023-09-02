@@ -3,10 +3,16 @@
 # split-run - Split Delphes events into ${NEVT} events per ROOT file.
 
 NEVT=$1
+shift
+if [ $# != 0 ]; then
+    SRCDIRS="$*"
+else
+    SRCDIRS="$(./list-run 2>/dev/null | awk '{print $1}')"
+fi
 
 mkdir -p split
 SPLIT=$(readlink -f ../../bin/delphes-split)
-for SRCDIR in $(./list-run 2>/dev/null | awk '{print $1}'); do
+for SRCDIR in ${SRCDIRS}; do
     DSTDIR=split${SRCDIR:3}
     SRCDIR=$(readlink -f ${SRCDIR})
     if [ -e ${DSTDIR} ]; then continue; fi

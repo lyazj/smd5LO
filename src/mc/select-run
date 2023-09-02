@@ -2,7 +2,13 @@
 #
 # select-run - Select split Delphes events.
 
-for ROOTFILE in $(ls split/*/*_delphes_events_*.root); do
+if [ $# = 1 ]; then
+    ROOTFILES="$(ls $1/*_delphes_events_*.root)"
+else
+    ROOTFILES="$(ls split/*/*_delphes_events_*.root)"
+fi
+
+for ROOTFILE in ${ROOTFILES}; do
     DUMPFILE=$(echo ${ROOTFILE} | sed 's@_delphes_events_@_selected_events_@')
     LOGFILE=$(echo ${ROOTFILE} | sed 's@_delphes_events_@_selected_events_@' | sed 's@\.root$@\.log@')
     if [ -e ${DUMPFILE} ]; then continue; fi

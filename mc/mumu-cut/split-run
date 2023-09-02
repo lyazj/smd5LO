@@ -4,4 +4,4 @@
 
 NEVT=10000
 
-exec ../../src/mc/split-run $NEVT
+source ../../src/mc/split-run $NEVT "$@"

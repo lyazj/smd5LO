@@ -31,7 +31,8 @@ seed() {
 # Hide incompatible lhapdf installation.
 export LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed 's@\(^\|:\)[^:]*lhapdf[^:]*@@g')
 
-exec ../../resource/mg5_aMC 0<<< "!date
+# Run MG5_aMC@NLO.
+../../resource/mg5_aMC 0<<< "!date
 launch run/${RUNNAME} -m
 $(cat /proc/cpuinfo | grep MHz | wc -l)
 shower=Pythia8
@@ -52,3 +53,11 @@ set mxx_min_pdg={25:50}
 set mmjj=700
 done
 !date" 1> log/${RUNNAME}/1.log 2> log/${RUNNAME}/2.log
+
+# Run split.
+source split-run run/${RUNNAME}
+wait
+
+# Run select.
+source select-run select/${RUNNAME}
+wait
