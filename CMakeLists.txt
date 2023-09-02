@@ -88,8 +88,8 @@ file(GLOB CMS_SOURCES src/cms/*.cpp)
 add_library(cms SHARED ${CMS_SOURCES})
 target_link_libraries(cms ASImage)
 
-file(GLOB CMS_SOURCES src/smd5/*.cpp)
-add_library(smd5 SHARED ${CMS_SOURCES})
+file(GLOB SMD5_SOURCES src/smd5/*.cpp)
+add_library(smd5 SHARED ${SMD5_SOURCES})
 target_link_libraries(smd5 ROOT::Tree ROOT::Gpad Delphes)
 
 # 以下为测试程序构建
