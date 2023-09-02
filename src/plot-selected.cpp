@@ -1,7 +1,6 @@
 #ifdef __CLING__
 #include "../include/smd5/utils.h"
 #include "../include/smd5/branch.h"
-#include "../include/smd5/particle.h"
 #include "../include/smd5/figure.h"
 #include "../resource/MG5_aMC/Delphes/classes/DelphesClasses.h"
 R__LOAD_LIBRARY(../lib/libsmd5.so)
@@ -9,7 +8,6 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #else  /* __CLING__ */
 #include "smd5/utils.h"
 #include "smd5/branch.h"
-#include "smd5/particle.h"
 #include "smd5/figure.h"
 #include <classes/DelphesClasses.h>
 #include <TFile.h>
@@ -22,7 +20,6 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #include <errno.h>
 #include <memory>
 #include <math.h>
-#include <set>
 #endif  /* __CLING__ */
 
 using namespace std;
