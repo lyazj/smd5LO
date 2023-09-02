@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
 void plot_selected(const vector<string> &procdirs)
 {
   // Create histograms.
-  Int_t nbin = 30;
-  Float_t pt_min = 0.0, pt_max = 1500.0;
+  Int_t nbin = 30, nbin_m_h = 50;
+  Float_t pt_min = 0.0, pt_max = 1500.0, pt_max_h = 600.0;
   Float_t eta_min = -3.0, eta_max = 3.0;
-  Float_t m_min = 0.0, m_max = 1500.0;
+  Float_t m_min = 0.0, m_max = 1500.0, m_min_h = 100.0, m_max_h = 150.0;
   vector<string> label = {
     "#font[132]{pp #rightarrow #mu^{#pm}#mu^{#pm}jj}",
     "#font[132]{pp #rightarrow H#mu^{#pm}#mu^{#pm}jj}",
@@ -55,9 +55,9 @@ void plot_selected(const vector<string> &procdirs)
   vector<shared_ptr<TH1F>> pt_mu = create_hists(label, nbin, pt_min, pt_max);
   vector<shared_ptr<TH1F>> eta_mu = create_hists(label, nbin, eta_min, eta_max);
   vector<shared_ptr<TH1F>> m_mu = create_hists(label, nbin, m_min, m_max);
-  vector<shared_ptr<TH1F>> pt_h = create_hists(label, nbin, pt_min, pt_max);
+  vector<shared_ptr<TH1F>> pt_h = create_hists(label, nbin, pt_min, pt_max_h);
   vector<shared_ptr<TH1F>> eta_h = create_hists(label, nbin, eta_min, eta_max);
-  vector<shared_ptr<TH1F>> m_h = create_hists(label, nbin, m_min, m_max);
+  vector<shared_ptr<TH1F>> m_h = create_hists(label, nbin_m_h, m_min_h, m_max_h);
 
   // Traverse process directories.
   for(string procdir : procdirs) {
