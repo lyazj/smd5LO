@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
+
   // Open rootfile to read.
   auto file = make_shared<TFile>(rootfile, "read");
   if(!file->IsOpen()) {
