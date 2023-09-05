@@ -90,7 +90,7 @@ target_link_libraries(cms ASImage)
 
 file(GLOB SMD5_SOURCES src/smd5/*.cpp)
 add_library(smd5 SHARED ${SMD5_SOURCES})
-target_link_libraries(smd5 ROOT::Tree ROOT::Gpad Delphes)
+target_link_libraries(smd5 ROOT::Tree ROOT::Gpad ROOT::Physics Delphes)
 
 # 以下为测试程序构建
 
@@ -105,16 +105,16 @@ add_executable(eg-delphes src/eg-delphes.cpp)
 target_link_libraries(eg-delphes smd5)
 
 add_executable(plot-lhe src/plot-lhe.cpp)
-target_link_libraries(plot-lhe smd5 ExRootAnalysis ROOT::Physics)
+target_link_libraries(plot-lhe smd5 ExRootAnalysis)
 
 add_executable(plot-delphes src/plot-delphes.cpp)
-target_link_libraries(plot-delphes smd5 ROOT::Physics)
+target_link_libraries(plot-delphes smd5)
 
 add_executable(plot-selected src/plot-selected.cpp)
-target_link_libraries(plot-selected smd5 ROOT::Physics)
+target_link_libraries(plot-selected smd5)
 
 add_executable(delphes-split src/delphes-split.cpp)
-target_link_libraries(delphes-split Delphes ROOT::Tree ROOT::Physics)
+target_link_libraries(delphes-split smd5)
 
 add_executable(delphes-select src/delphes-select.cpp)
-target_link_libraries(delphes-select smd5 ROOT::Physics)
+target_link_libraries(delphes-select smd5)
