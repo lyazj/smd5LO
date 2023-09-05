@@ -118,3 +118,6 @@ target_link_libraries(delphes-split smd5)
 
 add_executable(delphes-select src/delphes-select.cpp)
 target_link_libraries(delphes-select smd5)
+
+add_executable(delphes-view src/delphes-view.cpp)
+target_link_libraries(delphes-view smd5)

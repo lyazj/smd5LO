@@ -40,7 +40,17 @@ shared_ptr<TCanvas> create_canvas()
   return canvas;
 }
 
-void draw_and_save(vector<shared_ptr<TH1F>> &hists,
+void draw_and_save(const shared_ptr<TH1F> &hist,
+    const char *path, const char *xtitle, const char *ytitle)
+{
+  auto canvas = create_canvas();
+  hist->SetXTitle(xtitle);
+  hist->SetYTitle(ytitle);
+  format(hist.get())->DrawNormalized();
+  canvas->SaveAs(path);
+}
+
+void draw_and_save(const vector<shared_ptr<TH1F>> &hists,
     const char *path, const char *xtitle, const char *ytitle)
 {
   auto canvas = create_canvas();
