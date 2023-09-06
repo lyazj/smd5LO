@@ -52,7 +52,9 @@ void delphes_view(const vector<string> &procdirs)
   Float_t pt_min = 0.0, pt_max = 1500.0;
   Float_t eta_min = -3.0, eta_max = 3.0;
   Float_t m_min = 0.0, m_max = 1500.0;
-  auto hist_nmu = make_shared<TH1F>("", "", nbin, 0, 10);
+  auto hist_nmu = make_shared<TH1F>("", "", nbin, 0,  5);
+  auto hist_nj  = make_shared<TH1F>("", "", nbin, 0, 15);
+  auto hist_ne  = make_shared<TH1F>("", "", nbin, 0,  5);
 
   // Traverse process directories.
   Long64_t ievt = 0;
@@ -106,6 +108,9 @@ void delphes_view(const vector<string> &procdirs)
           clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
         }
       }
+      hist_nmu->Fill(muons->GetEntries());
+      hist_nj->Fill(jets->GetEntries());
+      hist_ne->Fill(electrons->GetEntries());
 
     cleanup:
       delete particles;
@@ -120,4 +125,6 @@ void delphes_view(const vector<string> &procdirs)
 
   // Export histograms.
   draw_and_save(hist_nmu, "nmu.pdf", "N^{#mu}", "density");
+  draw_and_save(hist_nj,  "nj.pdf",  "N^{j}", "density");
+  draw_and_save(hist_ne,  "ne.pdf",  "N^{e}", "density");
 }
