@@ -48,11 +48,11 @@ void delphes_view(const vector<string> &procdirs)
   Int_t nbin = 30;
   Float_t pt_min = 0.0, pt_max = 1500.0;
   Float_t m_min = 0.0, m_max = 1500.0;
-  auto hist_nmu    = make_shared<TH1F>("", "", nbin, 0, 5);
+  auto hist_nmu    = make_shared<TH1F>("", "", nbin, 0, 8);
   auto hist_nj     = make_shared<TH1F>("", "", nbin, 0, 15);
   auto hist_nb     = make_shared<TH1F>("", "", nbin, 0, 8);
-  auto hist_mj     = make_shared<TH1F>("", "", nbin, m_min, m_max);
-  auto hist_hjptmu = make_shared<TH1F>("", "", nbin, 0, 2);
+  auto hist_mj     = make_shared<TH1F>("", "", nbin, m_min, m_max * 2);
+  auto hist_hjptmu = make_shared<TH1F>("", "", nbin, 0, 10);
   auto hist_ne     = make_shared<TH1F>("", "", nbin, 0, 5);
   auto hist_met    = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
   auto hist_ptmu1  = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
@@ -174,7 +174,9 @@ void delphes_view(const vector<string> &procdirs)
   }
 
   // Export histograms.
-  auto pp = [](TCanvas *c) { c->SetLogy(); };
+  auto pp = [](TCanvas *c) {
+    c->SetLogy();
+  };
   draw_and_save(hist_nmu,    "nmu.pdf",    "N^{#mu}",              "density", pp);
   draw_and_save(hist_nj,     "nj.pdf",     "N^{j}",                "density", pp);
   draw_and_save(hist_nb,     "nb.pdf",     "N^{b}",                "density", pp);
