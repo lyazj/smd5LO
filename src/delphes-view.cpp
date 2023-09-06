@@ -1,18 +1,14 @@
 #ifdef __CLING__
 #include "../include/smd5/utils.h"
 #include "../include/smd5/branch.h"
-#include "../include/smd5/particle.h"
 #include "../include/smd5/figure.h"
-#include "../include/smd5/reco.h"
 #include "../resource/MG5_aMC/Delphes/classes/DelphesClasses.h"
 R__LOAD_LIBRARY(../lib/libsmd5.so)
 R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #else  /* __CLING__ */
 #include "smd5/utils.h"
 #include "smd5/branch.h"
-#include "smd5/particle.h"
 #include "smd5/figure.h"
-#include "smd5/reco.h"
 #include <classes/DelphesClasses.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -51,12 +47,17 @@ void delphes_view(const vector<string> &procdirs)
   // Create histograms.
   Int_t nbin = 30;
   Float_t pt_min = 0.0, pt_max = 1500.0;
-  Float_t eta_min = -3.0, eta_max = 3.0;
   Float_t m_min = 0.0, m_max = 1500.0;
-  auto hist_nmu = make_shared<TH1F>("", "", nbin, 0,  5);
-  auto hist_nj  = make_shared<TH1F>("", "", nbin, 0, 15);
-  auto hist_ne  = make_shared<TH1F>("", "", nbin, 0,  5);
-  auto hist_met = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
+  auto hist_nmu    = make_shared<TH1F>("", "", nbin, 0, 5);
+  auto hist_nj     = make_shared<TH1F>("", "", nbin, 0, 15);
+  auto hist_nb     = make_shared<TH1F>("", "", nbin, 0, 8);
+  auto hist_mj     = make_shared<TH1F>("", "", nbin, m_min, m_max);
+  auto hist_hjptmu = make_shared<TH1F>("", "", nbin, 0, 2);
+  auto hist_ne     = make_shared<TH1F>("", "", nbin, 0, 5);
+  auto hist_met    = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
+  auto hist_ptmu1  = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
+  auto hist_ptmu2  = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
+  auto hist_hastau = make_shared<TH1F>("", "", nbin, 0, 2);
 
   // Traverse process directories.
   Long64_t ievt = 0;
@@ -103,17 +104,64 @@ void delphes_view(const vector<string> &procdirs)
       }
 
       // Traverse tree entries.
-      for(Long64_t i = 0; ievt < 100000; ++i, ++ievt) {
+      for(Long64_t i = 0; ievt < 10000; ++i, ++ievt) {
         if(Delphes->GetEntry(i) == 0) break;
 
         if((i + 1) % 1000 == 0) {
           clog << "INFO: " << setw(6) << (i + 1) << " events processed" << endl;
         }
+
+        hist_nmu->Fill(muons->GetEntries());
+        hist_ne->Fill(electrons->GetEntries());
+        hist_met->Fill(((MissingET *)mets->At(0))->MET);
+
+        do {
+          if(muons->GetEntries() != 2) continue;
+          TLorentzVector pmu[2];
+          Int_t qmu[2];
+          for(Int_t j = 0; j < 2; ++j) {
+            Muon *muon = (Muon *)muons->At(j);
+            pmu[j] = muon->P4();
+            qmu[j] = muon->Charge;
+          }
+          if(qmu[0] != qmu[1]) continue;
+          if(pmu[0].Pt() < pmu[1].Pt()) swap(pmu[0], pmu[1]);
+          hist_ptmu1->Fill(pmu[0].Pt());
+          hist_ptmu2->Fill(pmu[1].Pt());
+
+          Double_t ht = 0.0;
+          Int_t njet = jets->GetEntries();
+          vector<TLorentzVector> pj;
+          vector<TLorentzVector> pb;
+          vector<Int_t> qb;
+          bool has_tau = false;
+          for(Int_t j = 0; j < njet; ++j) {
+            Jet *jet = (Jet *)jets->At(j);
+            if(jet->TauTag) {  // only one WP
+              has_tau = true; break;
+            }
+            if(jet->BTag) {  // only one WP
+              pb.emplace_back(jet->P4());
+              qb.push_back(jet->Charge);
+            } else {
+              pj.emplace_back(jet->P4());
+            }
+            ht += jet->PT;  // [TODO] which ones add up to Ht?
+          }
+          hist_hastau->Fill(has_tau);
+          if(has_tau) continue;
+          int nh = 2, nj = pj.size(), nb = pb.size();
+          hist_nj->Fill(nj);
+          hist_nb->Fill(nb);
+          if(nj < 2) continue;
+          if(nb < 2 * nh) continue;
+          sort(pj.begin(), pj.end(), [](const TLorentzVector &p1, const TLorentzVector &p2) {
+            return p1.Pt() > p2.Pt();
+          });
+          hist_mj->Fill((pj[0] + pj[1]).M());
+          hist_hjptmu->Fill(ht / pmu[0].Pt());
+        } while(0);
       }
-      hist_nmu->Fill(muons->GetEntries());
-      hist_nj->Fill(jets->GetEntries());
-      hist_ne->Fill(electrons->GetEntries());
-      hist_met->Fill(((MissingET *)mets->At(0))->MET);
 
     cleanup:
       delete particles;
@@ -121,15 +169,20 @@ void delphes_view(const vector<string> &procdirs)
       delete muons;
       delete jets;
       delete mets;
-      //first_mg5run = false;
     }
 
   }
 
   // Export histograms.
-  auto cc = [] { auto c = create_canvas(); c->GetLogy(); return c; };
-  draw_and_save(hist_nmu, "nmu.pdf", "N^{#mu}",   "density", cc);
-  draw_and_save(hist_nj,  "nj.pdf",  "N^{j}",     "density", cc);
-  draw_and_save(hist_ne,  "ne.pdf",  "N^{e}",     "density", cc);
-  draw_and_save(hist_met, "met.pdf", "MET [GeV]", "density", cc);
+  auto pp = [](TCanvas *c) { c->SetLogy(); };
+  draw_and_save(hist_nmu,    "nmu.pdf",    "N^{#mu}",              "density", pp);
+  draw_and_save(hist_nj,     "nj.pdf",     "N^{j}",                "density", pp);
+  draw_and_save(hist_nb,     "nb.pdf",     "N^{b}",                "density", pp);
+  draw_and_save(hist_mj,     "mj.pdf",     "m^{jets} [GeV]",       "density", pp);
+  draw_and_save(hist_hjptmu, "hjptmu.pdf", "H^{jets}/p_{T}^{#mu}", "density", pp);
+  draw_and_save(hist_ne,     "ne.pdf",     "N^{e}",                "density", pp);
+  draw_and_save(hist_met,    "met.pdf",    "MET [GeV]",            "density", pp);
+  draw_and_save(hist_ptmu1,  "ptmu1.pdf",  "P_{T}^{#mu1} [GeV]",   "density", pp);
+  draw_and_save(hist_ptmu2,  "ptmu2.pdf",  "P_{T}^{#mu2} [GeV]",   "density", pp);
+  draw_and_save(hist_hastau, "hastau.pdf", "has #tau",             "density", pp);
 }

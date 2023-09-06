@@ -20,6 +20,6 @@ std::shared_ptr<TCanvas> create_canvas();
 
 // Draw and save histograms to a file.
 void draw_and_save(const std::shared_ptr<TH1F> &hist, const char *path,
-    const char *xtitle, const char *ytitle, std::function<std::shared_ptr<TCanvas>()> = create_canvas);
+    const char *xtitle, const char *ytitle, std::function<void(TCanvas *)> pp = { });
 void draw_and_save(const std::vector<std::shared_ptr<TH1F>> &hists, const char *path,
-    const char *xtitle, const char *ytitle, std::function<std::shared_ptr<TCanvas>()> = create_canvas);
+    const char *xtitle, const char *ytitle, std::function<void(TCanvas *)> pp = { });

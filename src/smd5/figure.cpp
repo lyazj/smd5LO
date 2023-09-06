@@ -48,17 +48,18 @@ static void draw(TH1F *hist, const char *xtitle, const char *ytitle)
 }
 
 void draw_and_save(const shared_ptr<TH1F> &hist, const char *path,
-    const char *xtitle, const char *ytitle, function<shared_ptr<TCanvas>()> cc)
+    const char *xtitle, const char *ytitle, function<void(TCanvas *)> pp)
 {
-  auto canvas = cc();
+  auto canvas = create_canvas();
   draw(hist.get(), xtitle, ytitle);
+  if(pp) pp(canvas.get());
   canvas->SaveAs(path);
 }
 
 void draw_and_save(const vector<shared_ptr<TH1F>> &hists, const char *path,
-    const char *xtitle, const char *ytitle, function<shared_ptr<TCanvas>()> cc)
+    const char *xtitle, const char *ytitle, function<void(TCanvas *)> pp)
 {
-  auto canvas = cc();
+  auto canvas = create_canvas();
   for(size_t i = 0; i < hists.size(); ++i) {
     TH1F *hist = hists[i].get();
     if(hist->GetEntries() == 0) continue;
@@ -67,5 +68,6 @@ void draw_and_save(const vector<shared_ptr<TH1F>> &hists, const char *path,
   }
   TLegend *legend = canvas->BuildLegend(0.6, 0.92, 0.95, 0.8);
   if(legend) legend->SetTextSize(0.03);
+  if(pp) pp(canvas.get());
   canvas->SaveAs(path);
 }
