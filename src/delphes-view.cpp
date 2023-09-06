@@ -19,6 +19,7 @@ R__LOAD_LIBRARY(../resource/MG5_aMC/Delphes/libDelphes.so)
 #include <TClonesArray.h>
 #include <TLorentzVector.h>
 #include <TH1F.h>
+#include <TCanvas.h>
 #include <iostream>
 #include <iomanip>
 #include <errno.h>
@@ -55,6 +56,7 @@ void delphes_view(const vector<string> &procdirs)
   auto hist_nmu = make_shared<TH1F>("", "", nbin, 0,  5);
   auto hist_nj  = make_shared<TH1F>("", "", nbin, 0, 15);
   auto hist_ne  = make_shared<TH1F>("", "", nbin, 0,  5);
+  auto hist_met = make_shared<TH1F>("", "", nbin, pt_min, pt_max);
 
   // Traverse process directories.
   Long64_t ievt = 0;
@@ -111,6 +113,7 @@ void delphes_view(const vector<string> &procdirs)
       hist_nmu->Fill(muons->GetEntries());
       hist_nj->Fill(jets->GetEntries());
       hist_ne->Fill(electrons->GetEntries());
+      hist_met->Fill(((MissingET *)mets->At(0))->MET);
 
     cleanup:
       delete particles;
@@ -124,7 +127,9 @@ void delphes_view(const vector<string> &procdirs)
   }
 
   // Export histograms.
-  draw_and_save(hist_nmu, "nmu.pdf", "N^{#mu}", "density");
-  draw_and_save(hist_nj,  "nj.pdf",  "N^{j}", "density");
-  draw_and_save(hist_ne,  "ne.pdf",  "N^{e}", "density");
+  auto cc = [] { auto c = create_canvas(); c->GetLogy(); return c; };
+  draw_and_save(hist_nmu, "nmu.pdf", "N^{#mu}",   "density", cc);
+  draw_and_save(hist_nj,  "nj.pdf",  "N^{j}",     "density", cc);
+  draw_and_save(hist_ne,  "ne.pdf",  "N^{e}",     "density", cc);
+  draw_and_save(hist_met, "met.pdf", "MET [GeV]", "density", cc);
 }

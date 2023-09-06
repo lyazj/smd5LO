@@ -40,27 +40,30 @@ shared_ptr<TCanvas> create_canvas()
   return canvas;
 }
 
-void draw_and_save(const shared_ptr<TH1F> &hist,
-    const char *path, const char *xtitle, const char *ytitle)
+static void draw(TH1F *hist, const char *xtitle, const char *ytitle)
 {
-  auto canvas = create_canvas();
   hist->SetXTitle(xtitle);
   hist->SetYTitle(ytitle);
-  format(hist.get())->DrawNormalized();
+  format(hist)->DrawNormalized();
+}
+
+void draw_and_save(const shared_ptr<TH1F> &hist, const char *path,
+    const char *xtitle, const char *ytitle, function<shared_ptr<TCanvas>()> cc)
+{
+  auto canvas = cc();
+  draw(hist.get(), xtitle, ytitle);
   canvas->SaveAs(path);
 }
 
-void draw_and_save(const vector<shared_ptr<TH1F>> &hists,
-    const char *path, const char *xtitle, const char *ytitle)
+void draw_and_save(const vector<shared_ptr<TH1F>> &hists, const char *path,
+    const char *xtitle, const char *ytitle, function<shared_ptr<TCanvas>()> cc)
 {
-  auto canvas = create_canvas();
+  auto canvas = cc();
   for(size_t i = 0; i < hists.size(); ++i) {
     TH1F *hist = hists[i].get();
     if(hist->GetEntries() == 0) continue;
-    hist->SetXTitle(xtitle);
-    hist->SetYTitle(ytitle);
     hist->SetLineColor(i + 2);
-    format(hist)->DrawNormalized("SAME");
+    draw(hist, xtitle, ytitle);
   }
   TLegend *legend = canvas->BuildLegend(0.6, 0.92, 0.95, 0.8);
   if(legend) legend->SetTextSize(0.03);
