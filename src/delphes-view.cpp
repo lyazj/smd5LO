@@ -177,14 +177,14 @@ void delphes_view(const vector<string> &procdirs)
   auto pp = [](TCanvas *c) {
     c->SetLogy();
   };
-  draw_and_save(hist_nmu,    "nmu.pdf",    "N^{#mu}",              "density", pp);
-  draw_and_save(hist_nj,     "nj.pdf",     "N^{j}",                "density", pp);
-  draw_and_save(hist_nb,     "nb.pdf",     "N^{b}",                "density", pp);
-  draw_and_save(hist_mj,     "mj.pdf",     "m^{jets} [GeV]",       "density", pp);
-  draw_and_save(hist_hjptmu, "hjptmu.pdf", "H^{jets}/p_{T}^{#mu}", "density", pp);
-  draw_and_save(hist_ne,     "ne.pdf",     "N^{e}",                "density", pp);
-  draw_and_save(hist_met,    "met.pdf",    "MET [GeV]",            "density", pp);
-  draw_and_save(hist_ptmu1,  "ptmu1.pdf",  "P_{T}^{#mu1} [GeV]",   "density", pp);
-  draw_and_save(hist_ptmu2,  "ptmu2.pdf",  "P_{T}^{#mu2} [GeV]",   "density", pp);
-  draw_and_save(hist_hastau, "hastau.pdf", "has #tau",             "density", pp);
+  draw_and_save(hist_nmu,    "nmu.pdf:nmu.png",       "N^{#mu}",              "density", pp);
+  draw_and_save(hist_nj,     "nj.pdf:nj.png",         "N^{j}",                "density", pp);
+  draw_and_save(hist_nb,     "nb.pdf:nb.png",         "N^{b}",                "density", pp);
+  draw_and_save(hist_mj,     "mj.pdf:mj.png",         "m^{jets} [GeV]",       "density", pp);
+  draw_and_save(hist_hjptmu, "hjptmu.pdf:hjptmu.png", "H^{jets}/p_{T}^{#mu}", "density", pp);
+  draw_and_save(hist_ne,     "ne.pdf:ne.png",         "N^{e}",                "density", pp);
+  draw_and_save(hist_met,    "met.pdf:met.png",       "MET [GeV]",            "density", pp);
+  draw_and_save(hist_ptmu1,  "ptmu1.pdf:ptmu1.png",   "P_{T}^{#mu1} [GeV]",   "density", pp);
+  draw_and_save(hist_ptmu2,  "ptmu2.pdf:ptmu2.png",   "P_{T}^{#mu2} [GeV]",   "density", pp);
+  draw_and_save(hist_hastau, "hastau.pdf:hastau.png", "has #tau",             "density", pp);
 }

@@ -2,6 +2,7 @@
 #include <TH1F.h>
 #include <TCanvas.h>
 #include <TLegend.h>
+#include <string.h>
 
 using namespace std;
 
@@ -47,13 +48,26 @@ static void draw(TH1F *hist, const char *xtitle, const char *ytitle)
   format(hist)->DrawNormalized();
 }
 
+static void save(TCanvas *canvas, const char *path)
+{
+  char *const str = strdup(path);
+  const char *const delim = ":";
+  char *saveptr;
+  char *token = strtok_r(str, delim, &saveptr);
+  while(token) {
+    canvas->SaveAs(token);
+    token = strtok_r(NULL, delim, &saveptr);
+  }
+  free(str);
+}
+
 void draw_and_save(const shared_ptr<TH1F> &hist, const char *path,
     const char *xtitle, const char *ytitle, function<void(TCanvas *)> pp)
 {
   auto canvas = create_canvas();
   draw(hist.get(), xtitle, ytitle);
   if(pp) pp(canvas.get());
-  canvas->SaveAs(path);
+  save(canvas.get(), path);
 }
 
 void draw_and_save(const vector<shared_ptr<TH1F>> &hists, const char *path,
@@ -69,5 +83,5 @@ void draw_and_save(const vector<shared_ptr<TH1F>> &hists, const char *path,
   TLegend *legend = canvas->BuildLegend(0.6, 0.92, 0.95, 0.8);
   if(legend) legend->SetTextSize(0.03);
   if(pp) pp(canvas.get());
-  canvas->SaveAs(path);
+  save(canvas.get(), path);
 }

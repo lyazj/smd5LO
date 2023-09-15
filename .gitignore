@@ -21,4 +21,5 @@ test/*
 !test/test-ppww-sm
 *.log
 *.pdf
+*.png
 *.root
