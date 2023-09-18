@@ -103,7 +103,9 @@ void delphes_select(const char *rootpath, const char *dumppath)
     if(muons->GetEntries() != 2) continue;
     if(jets->GetEntries() < 2) continue;
     if(electrons->GetEntries()) continue;
+#if 0  // Disable fake neutrino veto.
     if(((MissingET *)mets->At(0))->MET >= 30) continue;
+#endif
 
     TLorentzVector pmu[2];
     Int_t qmu[2];
