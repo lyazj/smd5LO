@@ -150,4 +150,10 @@ void plot_selected(const vector<string> &procdirs)
   draw_and_save(pt_h, "pt_h.pdf", "p_{T}^{h}", "density");
   draw_and_save(eta_h, "eta_h.pdf", "#eta^{h}", "density");
   draw_and_save(m_h, "m_h.pdf", "m_{inv}^{h}", "density");
+  draw_and_save(pt_mu, "pt_mu.pdf:pt_mu.png", "p_{T}^{#mu}", "density");
+  draw_and_save(eta_mu, "eta_mu.pdf:eta_mu.png", "#eta^{#mu}", "density");
+  draw_and_save(m_mu, "m_mu.pdf:m_mu.png", "m_{inv}^{#mu}", "density");
+  draw_and_save(pt_h, "pt_h.pdf:pt_h.png", "p_{T}^{h}", "density");
+  draw_and_save(eta_h, "eta_h.pdf:eta_h.png", "#eta^{h}", "density");
+  draw_and_save(m_h, "m_h.pdf:m_h.png", "m_{inv}^{h}", "density");
 }

@@ -45,7 +45,7 @@ static void draw(TH1F *hist, const char *xtitle, const char *ytitle)
 {
   hist->SetXTitle(xtitle);
   hist->SetYTitle(ytitle);
-  format(hist)->DrawNormalized();
+  format(hist)->DrawNormalized("SAME");
 }
 
 static void save(TCanvas *canvas, const char *path)
