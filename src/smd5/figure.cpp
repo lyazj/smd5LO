@@ -14,7 +14,9 @@ TH1F *format(TH1F *th1f)
 
   // Append entry number to the title for legend use.
   string title = th1f->GetTitle();
-  title += " (nevt=" + to_string((Long64_t)th1f->GetEntries()) + ")";
+  if(title.find(" (nevt=") == title.npos) {
+    title += " (nevt=" + to_string((Long64_t)th1f->GetEntries()) + ")";
+  }
   th1f->SetTitle(title.c_str());
 
   return th1f;
