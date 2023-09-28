@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# run-proc - Run generated process.
+
+NEVENTS=100000
+
+exec ../../src/mc/run-proc $NEVENTS

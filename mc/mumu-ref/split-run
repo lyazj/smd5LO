@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# split-run - Split Delphes events into ${NEVT} events per ROOT file.
+
+NEVT=10000
+
+source ../../src/mc/split-run $NEVT "$@"

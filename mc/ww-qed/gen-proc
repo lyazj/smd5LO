@@ -1,0 +1,6 @@
+#!../../resource/mg5_aMC
+#
+# gen-proc - Generate process without outputting it.
+
+generate    p p > j j w+ w+ QCD=0
+add process p p > j j w- w- QCD=0

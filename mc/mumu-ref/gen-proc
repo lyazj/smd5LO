@@ -1,0 +1,7 @@
+#!../../resource/mg5_aMC
+#
+# gen-proc - Generate process without outputting it.
+
+import model SMWeinbergXLO
+generate    p p > mu+ mu+ j j QED=4 QCD=0 $$ w+ w-
+add process p p > mu- mu- j j QED=4 QCD=0 $$ w+ w-
