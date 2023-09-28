@@ -152,8 +152,8 @@ void delphes_select(const char *rootpath, const char *dumppath)
         qb.push_back(jet->Charge);
       } else {
         pj.emplace_back(jet->P4());
+        ht += jet->PT;  // b-jets excluded
       }
-      ht += jet->PT;  // [TODO] which ones add up to Ht?
     }
     if(has_tau) continue;
     int nj = pj.size(), nb = pb.size();
@@ -163,7 +163,7 @@ void delphes_select(const char *rootpath, const char *dumppath)
       return p1.Pt() > p2.Pt();
     });
     if((pj[0] + pj[1]).M() <= 700) continue;
-    if(ht / pmu[0].Pt() >= 1.6) continue;  // [TODO] Change this value?
+    //if(ht / pmu[0].Pt() >= 1.6) continue;
     numJet = nj, numBottom = nb;
 
     // Reconstruct Higgs bosons from final b-jets.
