@@ -2,6 +2,6 @@
 #
 # loop-run - Run run-proc until enough ${NEVT}.
 
-TARGET=10000000
+TARGET=100000000
 
 exec ../../src/mc/loop-run $TARGET
