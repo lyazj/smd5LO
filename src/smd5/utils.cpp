@@ -1,5 +1,6 @@
 #include "smd5/utils.h"
 #include <stdio.h>
+#include <memory>
 
 using namespace std;
 
@@ -66,6 +67,7 @@ vector<Mg5Run> list_run(string path)
   vector<Mg5Run> runs;
   string cmd = "cd '" + path + "' && ./list-run 2>/dev/null";
   FILE *pp = popen(cmd.c_str(), "r");
+  shared_ptr<FILE> pp_guard(pp, [](FILE *p) { pclose(p); });
 
   // Read and parse output lines from stdout stream.
   Mg5Run run;
@@ -94,6 +96,7 @@ vector<string> Mg5Run::selected() const
   vector<string> results;
   string cmd = "cd '" + base + "' && ls '" + split_dir + "'/tag_1_selected_events_*.root";
   FILE *pp = popen(cmd.c_str(), "r");
+  shared_ptr<FILE> pp_guard(pp, [](FILE *p) { pclose(p); });
 
   // Read and parse output lines from stdout stream.
   while(fgets(buf, sizeof buf, pp)) {
