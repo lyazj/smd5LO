@@ -23,11 +23,11 @@ fi
 export PATH=${CURDIR}:${PATH}
 
 # Install MG5_aMC@NLO.
-wget -O MG5_aMC_v2.9.16.tar.gz \
-    https://launchpad.net/mg5amcnlo/3.0/3.5.x/+download/MG5aMC_LTS_v2.9.16.tar.gz
-rm -rf MG5_aMC_v2_9_16
-tar zvxf MG5_aMC_v2.9.16.tar.gz
-ln -sf MG5_aMC_v2_9_16 MG5_aMC
+wget -O MG5_aMC_v2.9.18.tar.gz \
+    https://launchpad.net/mg5amcnlo/3.0/3.5.x/+download/MG5_aMC_v2.9.18.tar.gz
+rm -rf MG5_aMC_v2_9_18
+tar zvxf MG5_aMC_v2.9.18.tar.gz
+ln -sf MG5_aMC_v2_9_18 MG5_aMC
 sed -i 's@python3@python2@' MG5_aMC/bin/mg5_aMC
 sed -i 's@\(\s*\)\(.*python2 support will be removed in last quarter 2021.*\)@\1pass #\2@g' MG5_aMC/bin/mg5_aMC
 
